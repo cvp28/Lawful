@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Lawful.GameLibrary\Lawful.GameLibrary.csproj" />
+    <ProjectReference Include="..\Lawful.InputParser\Lawful.InputParser.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Haven">
+      <HintPath>..\..\Haven\Haven\bin\Release\net6.0\Haven.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

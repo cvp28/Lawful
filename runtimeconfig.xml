@@ -1,0 +1,4 @@
+<Config>
+	<ForceCSRenderer value="true"/>
+	<ShowFPS value="true"/>
+</Config>
