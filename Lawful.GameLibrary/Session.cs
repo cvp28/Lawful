@@ -13,6 +13,6 @@ namespace Lawful.GameLibrary
 		public static AssemblyLoadContext MissionAssemblyLoader;
 
 		public static Story CurrentStory;
-		public static StoryMission CurrentMission;
+		public static Mission CurrentMission;
 	}
 }

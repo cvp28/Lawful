@@ -1,9 +1,8 @@
 ﻿using Haven;
-using Lawful.GameLibrary;
 
-namespace Lawful.UI;
+namespace Lawful.GameLibrary.UI;
 
-internal static class Sections
+public static class Sections
 {
 	public static WidgetGroup MainMenu;
 	public static WidgetGroup NewGame;
@@ -15,6 +14,9 @@ internal static class Sections
 
 public static class UIManager
 {
+	public static TextBox Log;
+	public static Label FPSLabel;
+
 	private static WidgetGroup _current;
 	public static WidgetGroup Current
 	{
@@ -44,6 +46,56 @@ public static class UIManager
 		Sections.Options.Hide();
 		Sections.Credits.Hide();
 		Sections.Game.Hide();
+
+		Log = new(ScreenSpace.Full);
+		Log.Visible = false;
+
+		FPSLabel = new(Console.WindowWidth - 18, 0);
+
+		// Add UI to Engine
+		Engine.AddWidgets(Sections.MainMenu);
+		Engine.AddWidgets(Sections.NewGame);
+		Engine.AddWidgets(Sections.LoadGame);
+		Engine.AddWidgets(Sections.Options);
+		Engine.AddWidgets(Sections.Credits);
+		Engine.AddWidgets(Sections.Game);
+
+		if (GameOptions.ShowFPS)
+		{
+			Engine.AddWidget(FPSLabel);
+			Engine.AddUpdateTask("UpdateFPS", delegate (State s) { FPSLabel.Text = $"{s.FPS,-4} FPS :: {s.LastFrameTime,-1} ms"; });
+		}
+
+		Engine.AddWidget(Log);
+
+		Log.WriteLine("UI initialized!");
+
+		Engine.AddUpdateTask("ToggleLog", ToggleLog);
+	}
+
+	private static void EscapeProcedure(State s)
+	{
+		if (!s.KeyPressed) { return; }
+
+		switch (s.KeyInfo.Key)
+		{
+			case ConsoleKey.Escape:
+				Current = Sections.MainMenu;
+				break;
+		}
+	}
+
+	private static void ToggleLog(State s)
+	{
+		if (!s.KeyPressed)
+			return;
+
+		switch (s.KeyInfo.Key)
+		{
+			case ConsoleKey.F10:
+				Log.Visible = !Log.Visible;
+				break;
+		}
 	}
 
 	public static void ConstructMainMenu()
@@ -89,7 +141,7 @@ public static class UIManager
 
 		Label HelpLabel = new(1, 7, "Press [ESC] to go back");
 
-		Label InstructionsLabel = new(1, 9, "Select an installed storyline to play");
+		Label StatusLabel = new(1, 9);
 
 		Menu StoryMenu = new(1, 10) { SelectedOptionStyle = MenuStyle.Highlighted };
 		InputField ProfileNameField = new(1, 10, "> ");
@@ -103,7 +155,7 @@ public static class UIManager
 		Sections.NewGame.Widgets.Add(NewGm);
 
 		Sections.NewGame.Widgets.Add(HelpLabel);
-		Sections.NewGame.Widgets.Add(InstructionsLabel);
+		Sections.NewGame.Widgets.Add(StatusLabel);
 
 		Sections.NewGame.Widgets.Add(StoryMenu);
 		Sections.NewGame.Widgets.Add(ProfileNameField);
@@ -126,7 +178,7 @@ public static class UIManager
 			PCNameField.Visible = true;
 			Engine.FocusedWidget = PCNameField;
 
-			InstructionsLabel.Text = "Enter a PC name";
+			StatusLabel.Text = "(3/3) Enter a PC name";
 		};
 
 		PCNameField.OnInput = delegate (string Input)
@@ -135,18 +187,24 @@ public static class UIManager
 
 			PCName = Input;
 
-			(bool Succeeded, string Story) = SaveAPI.InitSave(PCName, ProfileName, SelectedStory);
+			StatusLabel.Text = "Creating save... ";
+			(bool Succeeded, string StoryPath) = SaveAPI.InitSave(PCName, ProfileName, SelectedStory);
 
 			if (!Succeeded)
-			{
-				
-			}
+				StatusLabel.Text = "Creating save... failed. Check logs in game directory for more details.";
+			else
+				StatusLabel.Text = "Creating save... successful.";
 		};
 
 		Sections.NewGame.OnShow = delegate (WidgetGroup wg)
 		{
 			ProfileNameField.Visible = false;
 			PCNameField.Visible = false;
+
+			ProfileNameField.Clear();
+			PCNameField.Clear();
+
+			StatusLabel.Text = "Getting installed stories...";
 
 			foreach (string StoryName in GameAPI.GetInstalledStorylines())
 			{
@@ -158,51 +216,145 @@ public static class UIManager
 					ProfileNameField.Visible = true;
 					Engine.FocusedWidget = ProfileNameField;
 
-					InstructionsLabel.Text = "Enter a profile name";
+					StatusLabel.Text = "(2/3) Enter a profile name";
 				});
 			}
 
-			Engine.AddUpdateTask("NewGameProcedure", NewGameProcedure);
+			StatusLabel.Text = "(1/3) Select an installed story to play";
+
+			Engine.AddUpdateTask("NewGameEscape", EscapeProcedure);
 			Engine.FocusedWidget = StoryMenu;
 		};
 
 		Sections.NewGame.OnHide = delegate (WidgetGroup wg)
 		{
 			StoryMenu.RemoveAllOptions();
-			Engine.RemoveUpdateTask("NewGameProcedure");
+			Engine.RemoveUpdateTask("NewGameEscape");
 			Engine.FocusedWidget = null;
 		};
-	}
-
-	private static void NewGameProcedure(State s)
-	{
-		if (!s.KeyPressed) { return; }
-
-		switch (s.KeyInfo.Key)
-		{
-			case ConsoleKey.Escape:
-				Current = Sections.MainMenu;
-				break;
-		}
 	}
 
 	public static void ConstructLoadGame()
 	{
 		Sections.LoadGame = new();
+
+		Label Line1 = new(1, 0, @"    __                           ____            __", ConsoleColor.Red, ConsoleColor.Black);
+		Label Line2 = new(1, 1, @"   / /     ______   _      __   / __/  __  __   / /", ConsoleColor.Red, ConsoleColor.Black);
+		Label Line3 = new(1, 2, @"  / /     / __  /  | | /| / /  / /_   / / / /  / / ", ConsoleColor.Red, ConsoleColor.Black);
+		Label Line4 = new(1, 3, @" / /___  / /_/ /   | |/ |/ /  / __/  / /_/ /  / /  ", ConsoleColor.Red, ConsoleColor.Black);
+		Label Line5 = new(1, 4, @"/_____/  \__/\_\   |__/|__/  /_/     \____/  /_/   ", ConsoleColor.Red, ConsoleColor.Black);
+		Label LodGm = new(1, 5, @"\ Load a saved game", ConsoleColor.Yellow, ConsoleColor.Black);
+
+		Label HelpLabel = new(1, 7, "Press [ESC] to go back");
+
+		Label StatusLabel = new(1, 9);
+		Menu SaveMenu = new(1, 10) { SelectedOptionStyle = MenuStyle.Highlighted };
+
+		Sections.LoadGame.Widgets.Add(Line1);
+		Sections.LoadGame.Widgets.Add(Line2);
+		Sections.LoadGame.Widgets.Add(Line3);
+		Sections.LoadGame.Widgets.Add(Line4);
+		Sections.LoadGame.Widgets.Add(Line5);
+		Sections.LoadGame.Widgets.Add(LodGm);
+		Sections.LoadGame.Widgets.Add(HelpLabel);
+		Sections.LoadGame.Widgets.Add(StatusLabel);
+		Sections.LoadGame.Widgets.Add(SaveMenu);
+
+		Sections.LoadGame.OnShow = delegate (WidgetGroup wg)
+		{
+			StatusLabel.Text = "Getting installed stories...";
+
+			int Count = 0;
+
+			foreach (string SaveName in GameAPI.GetSaves())
+			{
+				Count++;
+				SaveMenu.AddOption(SaveName, delegate ()
+				{
+					SaveAPI.LoadGameFromSave(SaveName);
+					GameSession.SkipBootupSequence = false;
+					Current = Sections.Game;
+
+				});
+			}
+
+			StatusLabel.Text = "Select a saved game to load";
+
+			Engine.AddUpdateTask("LoadGameEscape", EscapeProcedure);
+			Engine.FocusedWidget = SaveMenu;
+		};
+
+		Sections.LoadGame.OnHide = delegate (WidgetGroup wg)
+		{
+			SaveMenu.RemoveAllOptions();
+			Engine.RemoveUpdateTask("LoadGameEscape");
+			Engine.FocusedWidget = null;
+		};
 	}
 
 	public static void ConstructOptions()
 	{
 		Sections.Options = new();
+
+		Sections.Options.OnShow = delegate (WidgetGroup wg)
+		{
+			Engine.AddUpdateTask("OptionsEscape", EscapeProcedure);
+		};
+
+		Sections.Options.OnHide = delegate (WidgetGroup wg)
+		{
+			Engine.RemoveUpdateTask("OptionsEscape");
+			Engine.FocusedWidget = null;
+		};
 	}
 
 	public static void ConstructCredits()
 	{
 		Sections.Credits = new();
+
+		Sections.Credits.OnShow = delegate (WidgetGroup wg)
+		{
+			Engine.AddUpdateTask("CreditsEscape", EscapeProcedure);
+		};
+
+		Sections.Credits.OnHide = delegate (WidgetGroup wg)
+		{
+			Engine.RemoveUpdateTask("CreditsEscape");
+			Engine.FocusedWidget = null;
+		};
 	}
 
 	public static void ConstructGame()
 	{
 		Sections.Game = new();
+
+		HConsole Con = new();
+		//	TextBox Main = new(0, 0, Console.WindowWidth - 2, Console.WindowHeight - 4);
+		//	InputField Prompt = new(0, Console.WindowHeight - 2, "> ");
+
+		Sections.Game.Widgets.Add(Con);
+		//	Sections.Game.Widgets.Add(Main);
+		//	Sections.Game.Widgets.Add(Prompt);
+		//	
+		//	Prompt.OnInput = delegate (string Input)
+		//	{
+		//		Main.WriteLine($"> {Input}");
+		//	};
+
+		Sections.Game.OnShow = delegate (WidgetGroup wg)
+		{
+
+
+			Engine.AddUpdateTask("GameEscape", EscapeProcedure);
+			Engine.FocusedWidget = Con;
+		};
+
+		Sections.Game.OnHide = delegate (WidgetGroup wg)
+		{
+			//	Main.Clear();
+			//	Prompt.Clear();
+			Engine.RemoveUpdateTask("GameEscape");
+			Engine.FocusedWidget = null;
+		};
 	}
 }

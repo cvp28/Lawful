@@ -10,9 +10,13 @@ public static class GameSession
 	public static EventManager Events;
 	public static ComputerStructure Computers;
 
-	public static Assembly CurrentMissionAssembly;
-	public static AssemblyLoadContext MissionAssemblyLoader;
-
 	public static Story CurrentStory;
-	public static StoryMission CurrentMission;
+	public static Mission CurrentMission;
+
+	public static bool SkipBootupSequence;
+
+	public static string CurrentMissionRoot
+	{
+		get => $@".\Content\Story\{CurrentMission.Name}";
+	}
 }

@@ -321,7 +321,7 @@ public static class FSAPI
 
 		string[] PermissionsElements = Node.Attributes["Perms"].Value.Split(':');
 
-		if (PermissionsElements.Length < 3)
+		if (PermissionsElements.Length != 3)
 			return (null, null, null);
 
 		string Owner = PermissionsElements[0];
@@ -373,7 +373,7 @@ public static class FSAPI
 
 		string[] PermissionsElements = Node.Attributes["Perms"].Value.Split(':');
 
-		if (PermissionsElements.Length < 3)
+		if (PermissionsElements.Length != 3)
 			return (null, null, null);
 
 		string Owner = PermissionsElements[0];

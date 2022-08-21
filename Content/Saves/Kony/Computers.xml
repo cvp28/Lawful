@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?><ComputerStructure xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><Computer Name="bedroom_link" Address="172.116.23.251"><Account Username="root" Password="reallysecure" /><Account Username="jason" Password="cookies" /><Root><Root Perms="root:elm:el"><Directory Name="home" Perms="root:elm:el"><File Name="test.txt" Perms="root:rw:rw">
+This is a test document
+		</File><Directory Name="jason" Perms="jason:elm:el"><Directory Name="Documents" Perms="jason:elm:el"><File Name="reminder.txt" Perms="jason:rw:n">
+1. Apply for a job
+2. Study for US History test
+3. Investigate hacker forum
+4. ???
+5.
+6.
+7. Profit
+				</File></Directory></Directory></Directory><Directory Name="sys" Perms="root:elm:el"><File Name="kguilib.sys" Perms="root:rw:n" /><File Name="netman.sys" Perms="root:rw:n" /><File Name="kcmk.sys" Perms="root:rw:n" /><File Name="sfs.sys" Perms="root:rw:n" /></Directory><Directory Name="bin" Perms="root:elm:el"><File Name="ssh" Command="ssh" Perms="root::rwe:e" /><File Name="su" Command="su" Perms="root:rwe:e" /><File Name="ls" Command="ls" Perms="root:rwe:e" /><File Name="cd" Command="cd" Perms="root:rwe:e" /><File Name="mv" Command="mv" Perms="root:rwe:e" /><File Name="rm" Command="rm" Perms="root:rwe:e" /><File Name="cat" Command="cat" Perms="root:rwe:e" /><File Name="sus" Command="sus" Perms="root:rwe:e" /><File Name="clear" Command="clear" Perms="root:rwe:e" /><File Name="dc" Command="dc" Perms="root:rwe:e" /><File Name="pwd" Command="pwd" Perms="root:rwe:e" /><File Name="scp" Command="scp" Perms="root:rwe:e" /><File Name="mkdir" Command="mkdir" Perms="root:rwe:e" /></Directory></Root></Root></Computer><Computer Name="A" Address="117.92.201.6"><ScanResult Name="bedroom_link" Address="172.116.23.251" /><Account Username="root" Password="toor" /><Account Username="Kony" Password="" /><Root><Root Perms="root:elm:el"><Directory Name="home" Perms="root:elm:el"><Directory Name="Konym" Perms="Konym:elm:el"><Directory Name="Documents" Perms="Konym:elm:el"><Directory Name="not porn" Perms="Konym:elm:el"><Directory Name="School" Perms="Konym:elm:el"><File Name="UsHist Chapter 11 &amp; 12 Outline.docx" Perms="Konym:rw:n">
+1. Samuel Slater
+Went to U.S. and founded Slater's Mills
+2. Eli Whitney
+Developed interchangeable parts for weaponry
+3. Factory employment
+Often consisting of immigrants or poor individuals
+4. Industrial Revolution
+Birthed factories
+5. Importance of Cotton to the South
+Cotton Gin // Booming economy
+6. Planter
+Often owned slaves and/or a plantation
+7. Yeoman farmer
+Often did not own slaves / owned very little but worked alongside them
+8. What did the Southern economy depend on?
+Cotton
+9. Cotton gin
+A machine used to mass producing cotton
+10. Importance of slaves to the Southern economy
+Picking cotton
+11. African American slave culture
+Very strict
+12. Nat Turner
+Slave Rebellion
+						</File></Directory></Directory><File Name="US National Anthem Vocoded to Gangsta's Paradise.mp3" Perms="Konym:rw:n" /><File Name="hiresdefault.png" Perms="Konym:rw:n" /><File Name="netScan" Command="scan" Perms="Konym:rw:n" /><File Name="todo.txt" Perms="Konym:rw:n">
+1. email teacher about attendance
+2. apply to del taco
+3. ask out that girl in 5th period
+4. make more to-do lists
+5.
+				</File></Directory></Directory></Directory><Directory Name="sys" Perms="root:elm:el"><File Name="kguilib.sys" Perms="root:rw:n" /><File Name="netman.sys" Perms="root:rw:n" /><File Name="kcmk.sys" Perms="root:rw:n" /><File Name="sfs.sys" Perms="root:rw:n" /></Directory><Directory Name="bin" Perms="root:elm:el"><File Name="ssh" Command="ssh" Perms="root::rwe:e" /><File Name="su" Command="su" Perms="root:rwe:e" /><File Name="ls" Command="ls" Perms="root:rwe:e" /><File Name="cd" Command="cd" Perms="root:rwe:e" /><File Name="mv" Command="mv" Perms="root:rwe:e" /><File Name="rm" Command="rm" Perms="root:rwe:e" /><File Name="cat" Command="cat" Perms="root:rwe:e" /><File Name="sus" Command="sus" Perms="root:rwe:e" /><File Name="clear" Command="clear" Perms="root:rwe:e" /><File Name="dc" Command="dc" Perms="root:rwe:e" /><File Name="pwd" Command="pwd" Perms="root:rwe:e" /><File Name="scp" Command="scp" Perms="root:rwe:e" /><File Name="mkdir" Command="mkdir" Perms="root:rwe:e" /></Directory><Directory Name="www-root" Perms="www-root:elm:el"><File Name="index.html" Perms="www-root:rw:r" /><Directory Name="content" Perms="www-root:elm:el"><File Name="content.css" Perms="www-root:rwe:r" /></Directory><File Name="jermasus.txt" Perms="www-root:rw:r">
+.   ....../#########((#(*,. ,...,,,,,......,..........,**((((/#(/////////////////
+........../(######(/*,,.,......,.......................,,***/(#(#(///////////////
+,(###(//,,,,...,*.............,,....,,,.....,,.,*///((((///////////////
+*,,,,,,..  . .,*,...,,,,*,*****///(///////*****,,,*,,,*///////////////
+.,,,....   ...,,,,,,,*////((((####%%%%%%######(((/*,,,....,**//////////
+.....  ...,,,.... ...,,,****,,/((((((####%%%%%%%%%%%%%####((((**,,...,/*/////////
+.....,*,,,,..   .,,*******/,*(((((########%%%%%&amp;%%%##########(/**,......////////
+,.***/,,*,,..   ,,****/*****,/((((((#####%%%%%&amp;&amp;&amp;&amp;%%%##########(/*,,.....,///////
+*,****//...   .,**///*****,*((((((((#######%%%%%%%%%##########(((/*,,.....,//////
+%%%%#(/*,..  ,,************((((############%%%%%&amp;&amp;%%%%%########((/**,....,*///(//
+%%%%%%,,,....,**********/(((((((((##(#######%#%%%%%%%%%########(((**,.....*/////(
+%%%%%%.,. ...*******//(((((((((((((((((##########%&amp;&amp;%%%#########((*,,.....*(/((/(
+%%%%%%*.. ...********/(((((((((((((((((((##((#(#################((/*,.....//(((((
+%%%%%%%*....,****,,,,,,,,**///////((((((((((((///*,,,,*,*,***//(##(/,,....(((((((
+%%%%%%%#,..,*,.,,*//**,.,,,,,*****/////((////***,,.,,..,********/(((*,..  (((((((
+%%%%%%%&amp;. .,,,**/*,.  ..,....,,,*,***(((((/*/**,...***/#/....,*/(&amp;%#(....,(((((((
+%%%%%%%&amp;,. ,,***,..,,**,   .*,..,,**/(#%%#(/*,,,,,*,.,,,*/***,/((//##,.///((((/((
+%%%%%%#%*,.*//****,,,,*... .....,,,((((#%%(/.,..,,,,*,*/(#(/(##%%%###,,/(/(/(((((
+%%%%%%%#*..*/***,,,,,****,,,,,,,,,,/(###%##(((/**,,*,,,**/(#(#((*/(((*,//((((((((
+%%%%%%%%*..********,,,,,,,,*//**,,,*(##%%#((((((((((/////((######*/((*.*/(#((((((
+%%%%%%%#,..*****///((((((((///******/(###((((((((((((////(((((#####/*///###(((/((
+%%%%%%%#...,***///(((((((//********//(#%#(((/((((/////(((##(((((###((*##%%#(((/((
+%%%%%%%**,.****////////*****,*****//((((#((((((((((((**,,**///////(/((###%%((((((
+%%%%%%%%(,.******/**,,,,**,*******//(((((#(((((((((((///*,,,,**/##*(/(((((//(((((
+%%%%%%%%%#.*******.,,,,,,****,*****/(#(((//**///(((((////*,,,,.,/(/*/(((///(/((((
+%%%%%%%%%%%(*****.,,..,,,*****,,,,,,,******////(((//***,,...,, ,*/*//(((//(//((((
+%%%%%%%%%%%%/***/,/***. ...*****,,,,,,,,*((///****,,,**...,*,,.///*/*/*///////(((
+%%%%%%%%%%%(%****/*/****.. ,*****,************((#%(####.,(///,/*(,/*/////////*(((
+%%%%%%##%%#,#(****/*(/***,.(%#%#%&amp;/(##(/(&amp;@##&amp;@#&amp;&amp;%&amp;&amp;*,/(////,//*//(((////////(((
+###%%%##%##.#%%/***/**/**,,. #%%&amp;&amp;%&amp;&amp;&amp;&amp;(&amp;&amp;@@&amp;&amp;&amp;&amp;&amp;&amp;%..*/((((//(/**/(((///*/////((/
+###########*/%%%%/**//*/***,,...,/*%%%%%%&amp;&amp;%%,//,/#***/((((/((//(/////*/*.
+###########(,%%###(*,*/*/**,,,,../*.,,,,,,,,,,#(&amp;%//*/(##((((*/*/////*/**.    ...
+###########%,######((**/******,,*/*,/((#(###((((////(((##((/***/*//**//*,.     ..
+############((#(,,**,,,,//****//*,,**/////(//(////((((####(/(((%*#%%(((*..      .
+########(/*,**///***./,,,*********/////(((((((((((((((###(///((((.*((#%%%* . ....
+((*,,**,****,**///, ***,,,,*****/*///////(/((/(((((#(#(#(*///((((/.#####((##%%%%(
+/*,*,,,,***,**///* ****,,,,,***/**/////(((/((((###((#(#*,,**/((((/,######%%%%#((#
+**,,,,***,***********,,,*,,,,,,//////(/((((((((#((#((,*//((*,,(((**##############
+*,,,,****/****/*/*.,,,,,**,**,,,/*///(((((((((((((((,*////((/,,,((###############
+**,,****//*,,,****. *,,,,*****,,,,**///(/(///////,,**/////((((((*#(((############
+		</File></Directory></Root></Root></Computer></ComputerStructure>

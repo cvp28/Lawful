@@ -1,0 +1,1 @@
+WriteDynamic("Bootup finished. Hello, Alex", 50);
