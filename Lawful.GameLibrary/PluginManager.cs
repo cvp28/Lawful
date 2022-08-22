@@ -54,11 +54,11 @@ public static class PluginManager
 		// Register each of the plugin's components with the ComponentManager
 		foreach (IComponent Component in Plugin.GetComponents())
 		{
-			if (ComponentManager.RegisterComponent(Component))
-				Util.WriteLineColor($"[PluginManager] Exported and registered {Component.Type} '{Component.Name}' with ID '{Component.ID}'", ConsoleColor.Yellow);
+			//if (ComponentManager.RegisterComponent(Component))
+				//Util.WriteLineColor($"[PluginManager] Exported and registered {Component.Type} '{Component.Name}' with ID '{Component.ID}'", ConsoleColor.Yellow);
 		}
 
 		LoadedPlugins.Add(Plugin.ID, TempContext);
-		Util.WriteLineColor($"[PluginManager] finished.", ConsoleColor.Green);
+		//Util.WriteLineColor($"[PluginManager] finished.", ConsoleColor.Green);
 	}
 }

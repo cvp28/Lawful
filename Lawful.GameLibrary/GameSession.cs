@@ -7,7 +7,6 @@ namespace Lawful.GameLibrary;
 public static class GameSession
 {
 	public static User Player;
-	public static EventManager Events;
 	public static ComputerStructure Computers;
 
 	public static Story CurrentStory;
@@ -15,8 +14,8 @@ public static class GameSession
 
 	public static bool SkipBootupSequence;
 
-	public static string CurrentMissionRoot
+	public static string CurrentStoryRoot
 	{
-		get => $@".\Content\Story\{CurrentMission.Name}";
+		get => $@".\Content\Stories\{CurrentStory.Name}";
 	}
 }

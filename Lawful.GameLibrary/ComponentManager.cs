@@ -14,8 +14,8 @@ public static class ComponentManager
 	{
 		if (Components.Any(cmp => cmp.ID == Component.ID))
 		{
-			Util.WriteLineColor($"[ComponentManager] Failed to register component '{Component.Name}' with ID '{Component.ID}'", ConsoleColor.Red);
-			Util.WriteLineColor($"                   Internal component list already contains a component with that ID", ConsoleColor.Red);
+			//	Util.WriteLineColor($"[ComponentManager] Failed to register component '{Component.Name}' with ID '{Component.ID}'", ConsoleColor.Red);
+			//	Util.WriteLineColor($"                   Internal component list already contains a component with that ID", ConsoleColor.Red);
 			return false;
 		}
 

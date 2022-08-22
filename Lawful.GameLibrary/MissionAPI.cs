@@ -9,7 +9,6 @@ public static class MissionAPI
 {
     public static void LoadMission(string MissionID)
     {
-
         Mission TryMission = CurrentStory.GetMission(MissionID);
 
         if (TryMission is null)
@@ -18,17 +17,7 @@ public static class MissionAPI
 			Log.WriteLine($"'{CurrentStory.Name}' does not contain mission by ID '{MissionID}'");
 		}
 
-        try
-        {
-            foreach (var Event in TryMission.Events)
-            {
-
-            }
-        }
-        catch (Exception e)
-        {
-
-        }
+        EventManager.AddMissionEvents(TryMission);
     }
 
     public static void UnloadCurrentMission()

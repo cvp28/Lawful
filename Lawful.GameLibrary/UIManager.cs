@@ -1,4 +1,5 @@
 ﻿using Haven;
+using Lawful.InputParser;
 
 namespace Lawful.GameLibrary.UI;
 
@@ -9,6 +10,7 @@ public static class Sections
 	public static WidgetGroup LoadGame;
 	public static WidgetGroup Options;
 	public static WidgetGroup Credits;
+	public static WidgetGroup Bootup;
 	public static WidgetGroup Game;
 }
 
@@ -16,6 +18,8 @@ public static class UIManager
 {
 	public static TextBox Log;
 	public static Label FPSLabel;
+	public static HConsole BootupConsole;
+	public static HConsole GameConsole;
 
 	private static WidgetGroup _current;
 	public static WidgetGroup Current
@@ -38,6 +42,7 @@ public static class UIManager
 		ConstructLoadGame();
 		ConstructOptions();
 		ConstructCredits();
+		ConstructBootup();
 		ConstructGame();
 
 		Sections.MainMenu.Hide();
@@ -45,6 +50,7 @@ public static class UIManager
 		Sections.LoadGame.Hide();
 		Sections.Options.Hide();
 		Sections.Credits.Hide();
+		Sections.Bootup.Hide();
 		Sections.Game.Hide();
 
 		Log = new(ScreenSpace.Full);
@@ -58,6 +64,7 @@ public static class UIManager
 		Engine.AddWidgets(Sections.LoadGame);
 		Engine.AddWidgets(Sections.Options);
 		Engine.AddWidgets(Sections.Credits);
+		Engine.AddWidgets(Sections.Bootup);
 		Engine.AddWidgets(Sections.Game);
 
 		if (GameOptions.ShowFPS)
@@ -266,15 +273,14 @@ public static class UIManager
 
 			int Count = 0;
 
-			foreach (string SaveName in GameAPI.GetSaves())
+			foreach (var Save in GameAPI.GetSaves())
 			{
 				Count++;
-				SaveMenu.AddOption(SaveName, delegate ()
+				SaveMenu.AddOption(Save.Name, delegate ()
 				{
-					SaveAPI.LoadGameFromSave(SaveName);
+					SaveAPI.LoadGameFromSave(Save.Path);
 					GameSession.SkipBootupSequence = false;
-					Current = Sections.Game;
-
+					Current = Sections.Bootup;
 				});
 			}
 
@@ -324,37 +330,65 @@ public static class UIManager
 		};
 	}
 
+	public static void ConstructBootup()
+	{
+		Sections.Bootup = new();
+
+		BootupConsole = new();
+
+		Sections.Bootup.Widgets.Add(BootupConsole);
+
+		Sections.Bootup.OnShow = delegate (WidgetGroup wg)
+		{
+			Engine.FocusedWidget = BootupConsole;
+			BootupConsole.Clear();
+			GameAPI.CommenceBootupTask();
+		};
+
+		Sections.Bootup.OnHide = delegate (WidgetGroup wg)
+		{
+			Engine.FocusedWidget = null;
+			BootupConsole.Clear();
+		};
+	}
+
 	public static void ConstructGame()
 	{
 		Sections.Game = new();
 
-		HConsole Con = new();
-		//	TextBox Main = new(0, 0, Console.WindowWidth - 2, Console.WindowHeight - 4);
-		//	InputField Prompt = new(0, Console.WindowHeight - 2, "> ");
+		GameConsole = new(0, 1, Console.WindowWidth - 2, Console.WindowHeight - 3);
+		GameConsole.OnInput = OnInput;
 
-		Sections.Game.Widgets.Add(Con);
-		//	Sections.Game.Widgets.Add(Main);
-		//	Sections.Game.Widgets.Add(Prompt);
-		//	
-		//	Prompt.OnInput = delegate (string Input)
-		//	{
-		//		Main.WriteLine($"> {Input}");
-		//	};
+		Sections.Game.Widgets.Add(GameConsole);
 
 		Sections.Game.OnShow = delegate (WidgetGroup wg)
 		{
+			GameConsole.Clear();
+			Engine.FocusedWidget = GameConsole;
 
-
+			Util.PrintPrompt();
+			GameConsole.BeginReadLine();
+			
 			Engine.AddUpdateTask("GameEscape", EscapeProcedure);
-			Engine.FocusedWidget = Con;
 		};
 
 		Sections.Game.OnHide = delegate (WidgetGroup wg)
 		{
-			//	Main.Clear();
-			//	Prompt.Clear();
-			Engine.RemoveUpdateTask("GameEscape");
 			Engine.FocusedWidget = null;
+
+			GameConsole.CancelReadLine();
+			GameConsole.Clear();
+
+			Engine.RemoveUpdateTask("GameEscape");
 		};
+	}
+
+	private static void OnInput(string Input)
+	{
+		InputQuery UserQuery = Parser.Parse(Input);
+		GameAPI.HandleUserInput(UserQuery);
+
+		Util.PrintPrompt();
+		GameConsole.BeginReadLine();
 	}
 }

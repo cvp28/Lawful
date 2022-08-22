@@ -97,7 +97,7 @@ public static class SaveAPI
 		// Method that creates our Home PC user session and populates the CurrentSession field
 		Player.InstantiateSession();
 
-		Events = new();
+		EventManager.Initialize();
 
 		// Load current mission
 		MissionAPI.LoadMission(Player.CurrentMissionID);

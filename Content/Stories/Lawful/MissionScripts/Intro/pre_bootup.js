@@ -1,81 +1,82 @@
+function BetterReadKey()
+{
+	while (BootupConsole.KeyAvailable) { BootupConsole.ReadKey(true); }
+	BootupConsole.ReadKey(true);
+}
+
 Sleep(2000);
+BootupConsole.CursorVisible = false;
 
-WriteDynamic("End of Sophomore Year, 2018\n", 50);
+BootupConsole.WriteDynamic("End of Sophomore Year, 2018\n", 50);
 Sleep(750);
-WriteDynamic("Lawful Estate\n", 50);
+BootupConsole.WriteDynamic("Lawful Estate\n", 50);
 Sleep(750);
-WriteDynamic("10:34 AM\n", 50);
-Console.WriteLine();
+BootupConsole.WriteDynamic("10:34 AM\n", 50);
+BootupConsole.NextLine();
 Sleep(1000);
 
-Console.WriteLine("Dad: Alex! Can you come out here for a second?");
-BetterReadKey(); ;
-Console.WriteLine("Alex: Yeah?");
+BootupConsole.WriteLine("Dad: Alex! Can you come out here for a second?");
 BetterReadKey();
-Console.WriteLine("Dad: Report card came.");
+BootupConsole.WriteLine("Alex: Yeah?");
 BetterReadKey();
-Console.WriteLine("Alex: Don't bother. Nothing but F's on that paper.");
+BootupConsole.WriteLine("Dad: Report card came.");
+BetterReadKey();
+BootupConsole.WriteLine("Alex: Don't bother. Nothing but F's on that paper.");
 Sleep(2000);
-Console.WriteLine();
-Console.WriteLine("Dad: ...");
+BootupConsole.NextLine();
+BootupConsole.WriteLine("Dad: ...");
 Sleep(1250);
-Console.WriteLine("Alex: ...");
+BootupConsole.WriteLine("Alex: ...");
 Sleep(1250);
-WriteLineColor("(dramatic envelope ripping noises)", ConsoleColor.Yellow);
+BootupConsole.WriteLineColor("(dramatic envelope ripping noises)", ConsoleColor.Yellow);
 Sleep(1000);
-Console.WriteLine();
-Console.WriteLine("Dad: Let's see here... WOW. All A's, huh?");
+BootupConsole.NextLine();
+BootupConsole.WriteLine("Dad: Let's see here... WOW. All A's, huh?");
 BetterReadKey();
-Console.WriteLine("Alex: Hmm, must have been sent to the wrong address.");
+BootupConsole.WriteLine("Alex: Hmm, must have been sent to the wrong address.");
 BetterReadKey();
-Console.WriteLine("Dad: Don't sell yourself short, bud. Remember our deal?");
+BootupConsole.WriteLine("Dad: Don't sell yourself short, bud. Remember our deal?");
 BetterReadKey();
-Console.WriteLine("Alex: I do actually, I'll go get ready!");
+BootupConsole.WriteLine("Alex: I do actually, I'll go get ready!");
 BetterReadKey();
 
 Sleep(750);
-Console.WriteLine();
-WriteDynamic("Wavetronics Retail Outlet, Aisle 10\n", 50);
+BootupConsole.NextLine();
+BootupConsole.WriteDynamic("Wavetronics Retail Outlet, Aisle 10\n", 50);
 Sleep(750);
-WriteDynamic("11:42 AM\n", 50);
-Console.WriteLine();
+BootupConsole.WriteDynamic("11:42 AM\n", 50);
+BootupConsole.NextLine();
 Sleep(1000);
 
-Console.WriteLine("Dad: Alex, you have been staring at that shelf for 10 minutes.");
+BootupConsole.WriteLine("Dad: Alex, you have been staring at that shelf for 10 minutes.");
 BetterReadKey();
-Console.WriteLine("Alex: wait wha-");
+BootupConsole.WriteLine("Alex: wait wha-");
 BetterReadKey();
-Console.WriteLine("Dad: Don't tell me you were daydreaming about a computer of all things.");
+BootupConsole.WriteLine("Dad: Don't tell me you were daydreaming about a computer of all things.");
 BetterReadKey();
-Console.WriteLine("Alex: ");
+BootupConsole.WriteLine("Alex: ");
 BetterReadKey();
-Console.WriteLine("Dad: Just hurry up and pick a computer already, the A/C in this place blows too cold.");
+BootupConsole.WriteLine("Dad: Just hurry up and pick a computer already, the A/C in this place blows too cold.");
 BetterReadKey();
-Console.Write("Alex: ");
+BootupConsole.Write("Alex: ");
 Sleep(600);
-WriteColor("Points", ConsoleColor.Yellow);
-Console.Write(' ');
+BootupConsole.WriteColor("Points", ConsoleColor.Yellow);
+BootupConsole.Write(' ');
 Sleep(600);
-WriteDynamic("That one.\n", 25);
+BootupConsole.WriteDynamic("That one.\n", 25);
 
 Sleep(1000);
-Console.WriteLine();
-WriteDynamic("Law Estate\n", 50);
+BootupConsole.NextLine();
+BootupConsole.WriteDynamic("Law Estate\n", 50);
 Sleep(750);
-WriteDynamic("1:28 PM\n", 50);
-Console.WriteLine();
+BootupConsole.WriteDynamic("1:28 PM\n", 50);
+BootupConsole.NextLine();
 Sleep(750);
 
-Console.WriteLine("Alex: Alright, cables are hooked up and everything looks to be in order.");
+BootupConsole.WriteLine("Alex: Alright, cables are hooked up and everything looks to be in order.");
 BetterReadKey();
-Console.WriteLine("Alex: Let's see what this button does...");
+BootupConsole.WriteLine("Alex: Let's see what this button does...");
 
 Sleep(1500);
-Console.Clear();
+BootupConsole.Clear();
 Sleep(2000);
-
-void BetterReadKey()
-{
-	while (Console.KeyAvailable) { Console.ReadKey(true); }
-	Console.ReadKey(true);
-}

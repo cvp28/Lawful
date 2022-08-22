@@ -31,16 +31,17 @@ public enum Trigger
 public class Event
 {
 	[XmlAttribute("Trigger")]
-	public Trigger Trigger { get; private set; }
+	public Trigger Trigger { get; set; }
 
 	[XmlAttribute("ScriptPath")]
-	public string ScriptPath { get; private set; }
+	public string ScriptPath { get; set; }
 
+	[XmlIgnore]
 	public string ScriptSource
 	{
 		get
 		{
-			string PathToScript = $@"{CurrentMissionRoot}\{ScriptPath}";
+			string PathToScript = $"{CurrentStoryRoot}\\{ScriptPath}";
 
 			if (!File.Exists(PathToScript))
 				return string.Empty;
@@ -50,5 +51,5 @@ public class Event
 	}
 
 	[XmlAttribute("Attrib")]
-	public string Attributes { get; private set; }
+	public string Attributes { get; set; }
 }

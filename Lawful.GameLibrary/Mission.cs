@@ -10,6 +10,6 @@ public class Mission
 	[XmlAttribute("ID")]
 	public string ID;
 
-	[XmlAttribute("Event")]
+	[XmlElement("Event")]
 	public List<Event> Events;
 }

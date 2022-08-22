@@ -3,7 +3,7 @@
 
   <Mission Name="Humble Beginnings (Intro)" ID="Intro">
 	<Event Trigger="BootupSequenceStarted" ScriptPath="MissionScripts\Intro\pre_bootup.js" Attrib="fireonce"/>
-	<Event Trigger="BootupSequenceFinished" ScriptPath="MissionsScripts\Intro\post_bootup.js" Attrib="fireonce"/>
+	<Event Trigger="BootupSequenceFinished" ScriptPath="MissionScripts\Intro\post_bootup.js" Attrib="fireonce"/>
   </Mission>
   
   <Mission Name="Stood Upon the Shoulders of Giants" ID="ShouldersOfGiants">
