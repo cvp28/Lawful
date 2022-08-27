@@ -1,7 +1,7 @@
 function BetterReadKey()
 {
-	while (BootupConsole.KeyAvailable) { BootupConsole.ReadKey(true); }
-	BootupConsole.ReadKey(true);
+	while (KeyAvailable) { ReadKey(true); }
+	ReadKey(true);
 }
 
 Sleep(2000);
@@ -28,7 +28,7 @@ BootupConsole.WriteLine("Dad: ...");
 Sleep(1250);
 BootupConsole.WriteLine("Alex: ...");
 Sleep(1250);
-BootupConsole.WriteLineColor("(dramatic envelope ripping noises)", ConsoleColor.Yellow);
+BootupConsole.WriteLine("(dramatic envelope ripping noises)", ConsoleColor.Yellow, ConsoleColor.Black);
 Sleep(1000);
 BootupConsole.NextLine();
 BootupConsole.WriteLine("Dad: Let's see here... WOW. All A's, huh?");
@@ -60,7 +60,7 @@ BootupConsole.WriteLine("Dad: Just hurry up and pick a computer already, the A/C
 BetterReadKey();
 BootupConsole.Write("Alex: ");
 Sleep(600);
-BootupConsole.WriteColor("Points", ConsoleColor.Yellow);
+BootupConsole.Write("Points", ConsoleColor.Yellow, ConsoleColor.Black);
 BootupConsole.Write(' ');
 Sleep(600);
 BootupConsole.WriteDynamic("That one.\n", 25);

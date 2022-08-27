@@ -1,4 +1,5 @@
-﻿using Haven;
+﻿using Esprima.Ast;
+using Haven;
 using Lawful.InputParser;
 
 namespace Lawful.GameLibrary.UI;
@@ -18,8 +19,11 @@ public static class UIManager
 {
 	public static TextBox Log;
 	public static Label FPSLabel;
-	public static HConsole BootupConsole;
-	public static HConsole GameConsole;
+	public static TextBox BootupConsole;
+	public static TextBox GameConsole;
+	public static InputField GameInput;
+	public static ReadKeyBridge ReadKey;
+	public static Label InputHeader;
 
 	private static WidgetGroup _current;
 	public static WidgetGroup Current
@@ -45,16 +49,19 @@ public static class UIManager
 		ConstructBootup();
 		ConstructGame();
 
-		Sections.MainMenu.Hide();
-		Sections.NewGame.Hide();
-		Sections.LoadGame.Hide();
-		Sections.Options.Hide();
-		Sections.Credits.Hide();
-		Sections.Bootup.Hide();
-		Sections.Game.Hide();
+		// False to supress event firing
+		Sections.MainMenu.Hide(false);
+		Sections.NewGame.Hide(false);
+		Sections.LoadGame.Hide(false);
+		Sections.Options.Hide(false);
+		Sections.Credits.Hide(false);
+		Sections.Bootup.Hide(false);
+		Sections.Game.Hide(false);
 
 		Log = new(ScreenSpace.Full);
 		Log.Visible = false;
+
+		ReadKey = new();
 
 		FPSLabel = new(Console.WindowWidth - 18, 0);
 
@@ -279,7 +286,7 @@ public static class UIManager
 				SaveMenu.AddOption(Save.Name, delegate ()
 				{
 					SaveAPI.LoadGameFromSave(Save.Path);
-					GameSession.SkipBootupSequence = false;
+					GameSession.SkipBootupSequence = true;
 					Current = Sections.Bootup;
 				});
 			}
@@ -340,7 +347,7 @@ public static class UIManager
 
 		Sections.Bootup.OnShow = delegate (WidgetGroup wg)
 		{
-			Engine.FocusedWidget = BootupConsole;
+			Engine.FocusedWidget = ReadKey;
 			BootupConsole.Clear();
 			GameAPI.CommenceBootupTask();
 		};
@@ -352,43 +359,76 @@ public static class UIManager
 		};
 	}
 
+	private static bool DoGameUIUpdate;
+
 	public static void ConstructGame()
 	{
 		Sections.Game = new();
 
-		GameConsole = new(0, 1, Console.WindowWidth - 2, Console.WindowHeight - 3);
-		GameConsole.OnInput = OnInput;
+		GameConsole = new(0, 1, Console.WindowWidth - 2, Console.WindowHeight - 4);
+		GameConsole.CursorBlinkIntervalMs = 500;
 
+		InputHeader = new(0, 0);
+		GameInput = new(0, Console.WindowHeight - 1, "# ");
+
+		GameInput.OnInput = OnInput;
+
+		Thread UpdateGameUIThread = new(UpdateGameUI) { Name = "UpdateGameUI" };
+		
 		Sections.Game.Widgets.Add(GameConsole);
+		Sections.Game.Widgets.Add(InputHeader);
+		Sections.Game.Widgets.Add(GameInput);
 
 		Sections.Game.OnShow = delegate (WidgetGroup wg)
 		{
 			GameConsole.Clear();
-			Engine.FocusedWidget = GameConsole;
+			GameInput.Clear();
 
-			Util.PrintPrompt();
-			GameConsole.BeginReadLine();
-			
+			if (UpdateGameUIThread is null)
+				UpdateGameUIThread = new(UpdateGameUI) { Name = "UpdateGameUI" };
+
+			DoGameUIUpdate = true;
+			UpdateGameUIThread.Start();
+
+			Engine.FocusedWidget = GameInput;
 			Engine.AddUpdateTask("GameEscape", EscapeProcedure);
 		};
 
 		Sections.Game.OnHide = delegate (WidgetGroup wg)
 		{
+			DoGameUIUpdate = false;
+			UpdateGameUIThread.Join();
+			UpdateGameUIThread = null;
+
 			Engine.FocusedWidget = null;
-
-			GameConsole.CancelReadLine();
-			GameConsole.Clear();
-
 			Engine.RemoveUpdateTask("GameEscape");
 		};
+	}
+
+	private static void UpdateGameUI()
+	{
+		while (DoGameUIUpdate)
+		{
+			string Username = GameSession.Player.CurrentSession.User.Username;
+
+			InputHeader.Text = $"{Username} @ {GameSession.Player.CurrentSession.Host.Address} ({GameSession.Player.CurrentSession.Host.Name})";
+			InputHeader.X = (Console.WindowWidth / 2) - (InputHeader.Text.Length / 2);
+
+			GameInput.Prompt = $"{GameSession.Player.CurrentSession.PathNode.GetPath()} # ";
+
+			Thread.Sleep(100);
+		}
 	}
 
 	private static void OnInput(string Input)
 	{
 		InputQuery UserQuery = Parser.Parse(Input);
-		GameAPI.HandleUserInput(UserQuery);
 
-		Util.PrintPrompt();
-		GameConsole.BeginReadLine();
+		GameConsole.WriteLine($"{GameInput.Prompt}{Input}");
+
+		Task.Run(delegate ()
+		{
+			GameAPI.HandleUserInput(UserQuery);
+		});
 	}
 }

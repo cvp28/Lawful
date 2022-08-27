@@ -3,26 +3,6 @@ using System.Text;
 
 namespace Lawful.GameLibrary;
 
-// Standard Unix file permissions set
-public enum PermissionLevel : int
-{
-	None,
-	Execute,
-	Write,
-	WriteExecute,
-	Read,
-	ReadExecute,
-	ReadWrite,
-	ReadWriteExecute
-}
-
-public enum PermissionType : int
-{
-	Read,
-	Write,
-	Execute
-}
-
 // Standard file permissions set that is not hard to understand
 public enum FilePermission : int
 {
@@ -32,7 +12,6 @@ public enum FilePermission : int
 }
 
 // Standard Windows-inspired directory permissions set
-// Why is it Windows-inspired if Linux is so fucking amazing? Because the Windows one is extensible, robust, and EASY TO UNDERSTAND
 public enum DirectoryPermission : int
 {
 	Enter,			// Able to CD into the directory
@@ -302,6 +281,9 @@ public static class FSAPI
 	public static string GetPath(this XmlNode Node)
 	{
 		StringBuilder Path = new();
+
+		if (Node == null)
+			return string.Empty;
 
 		if (Node.Name == "Root") { return "/"; }
 

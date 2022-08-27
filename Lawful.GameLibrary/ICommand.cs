@@ -8,5 +8,5 @@ public interface ICommand : IComponent
 
 	public void Help();
 
-	public void Invoke(InputQuery Query, User Player, ComputerStructure Computers, EventManager Events);
+	//public void Invoke(InputQuery Query, User Player, ComputerStructure Computers, EventManager Events);
 }

@@ -16,7 +16,7 @@
 
   <ItemGroup>
     <Reference Include="Haven">
-      <HintPath>..\..\Haven\Haven\bin\Release\net6.0\Haven.dll</HintPath>
+      <HintPath>..\Haven.dll</HintPath>
     </Reference>
   </ItemGroup>
 

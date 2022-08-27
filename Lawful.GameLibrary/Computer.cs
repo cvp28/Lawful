@@ -30,7 +30,7 @@ public class Computer
 		ScanResults = new();
 
 		Accounts = new();
-		Accounts.Add(new UserAccount("root", String.Empty));
+		Accounts.Add(new UserAccount("root", string.Empty));
 	}
 
 	public Computer(string Name, string Address, string RootPassword)

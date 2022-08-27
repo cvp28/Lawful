@@ -1,11 +1,13 @@
-﻿using Lawful.GameLibrary.UI;
-using Lawful.InputParser;
-using System.Xml;
+﻿using System.Xml;
 using System.Xml.Serialization;
+
+using Lawful.InputParser;
+using Lawful.GameLibrary.UI;
 
 namespace Lawful.GameLibrary;
 
 using static UI.UIManager;
+using static GameSession;
 
 public static class GameAPI
 {
@@ -70,7 +72,7 @@ public static class GameAPI
 
 	public static void CommenceBootupTask()
 	{
-		if (GameSession.SkipBootupSequence)
+		if (SkipBootupSequence)
 		{
 			Current = Sections.Game;
 			return;
@@ -81,10 +83,10 @@ public static class GameAPI
 			BootupConsole.CursorVisible = false;
 			BootupConsole.Clear();
 
-			EventManager.HandleEventsByTrigger(Trigger.BootupSequenceStarted);
+			//EventManager.HandleEventsByTrigger(Trigger.BootupSequenceStarted);
 
-			BootupConsole.WriteLineColor("V Systems Company", ConsoleColor.Yellow);
-			BootupConsole.WriteLineColor("(C) 2018", ConsoleColor.Yellow);
+			BootupConsole.WriteLine("V Systems Company", ConsoleColor.Yellow, ConsoleColor.Black);
+			BootupConsole.WriteLine("(C) 2018", ConsoleColor.Yellow, ConsoleColor.Black);
 			BootupConsole.NextLine();
 
 			Thread.Sleep(750);
@@ -95,64 +97,64 @@ public static class GameAPI
 				BootupConsole.Write('.');
 				Thread.Sleep(50);
 			}
-			BootupConsole.WriteLineColor(" 8192 MB OK", ConsoleColor.Green);
+			BootupConsole.WriteLine(" 8192 MB OK", ConsoleColor.Green, ConsoleColor.Black);
 			BootupConsole.NextLine();
 
 			Thread.Sleep(500);
 
 			BootupConsole.Write("Building device list... ");
 			BootupConsole.BeginCharacterAnimation(new char[8] { '|', '/', '-', '\\', '|', '/', '-', '\\' }, 16, 16, 50, BootupConsole.GetCursorPosition());
-			BootupConsole.WriteLineColor("OK", ConsoleColor.Green);
+			BootupConsole.WriteLine("OK", ConsoleColor.Green, ConsoleColor.Black);
 			Thread.Sleep(250);
 
 
-			BootupConsole.WriteLineColor("    Found Device!", ConsoleColor.Green);
+			BootupConsole.WriteLine("    Found Device!", ConsoleColor.Green, ConsoleColor.Black);
 
 			Thread.Sleep(50);
-			BootupConsole.Write("        ");
+			BootupConsole.Write("                ");
 			BootupConsole.BeginCharacterAnimation(new char[8] { '|', '/', '-', '\\', '|', '/', '-', '\\' }, 6, 6, 50, BootupConsole.GetCursorPosition());
-			BootupConsole.WriteLineColor("    ID                : 0x01", ConsoleColor.Yellow);
+			BootupConsole.WriteLine("ID                : 0x01", ConsoleColor.Yellow, ConsoleColor.Black);
 
 			Thread.Sleep(50);
-			BootupConsole.Write("        ");
+			BootupConsole.Write("                ");
 			BootupConsole.BeginCharacterAnimation(new char[8] { '|', '/', '-', '\\', '|', '/', '-', '\\' }, 6, 6, 50, BootupConsole.GetCursorPosition());
-			BootupConsole.WriteLineColor("    Type              : Mechanical", ConsoleColor.Yellow);
+			BootupConsole.WriteLine("Type              : Mechanical", ConsoleColor.Yellow, ConsoleColor.Black);
 
 			Thread.Sleep(50);
-			BootupConsole.Write("        ");
+			BootupConsole.Write("                ");
 			BootupConsole.BeginCharacterAnimation(new char[8] { '|', '/', '-', '\\', '|', '/', '-', '\\' }, 6, 6, 50, BootupConsole.GetCursorPosition());
-			BootupConsole.WriteLineColor("    Vendor            : Toshiba", ConsoleColor.Yellow);
+			BootupConsole.WriteLine("Vendor            : Toshiba", ConsoleColor.Yellow, ConsoleColor.Black);
 
 			Thread.Sleep(50);
-			BootupConsole.Write("        ");
+			BootupConsole.Write("                ");
 			BootupConsole.BeginCharacterAnimation(new char[8] { '|', '/', '-', '\\', '|', '/', '-', '\\' }, 6, 6, 50, BootupConsole.GetCursorPosition());
-			BootupConsole.WriteLineColor("    Reported Capacity : 2 TB (2,199,023,255,552 bytes)", ConsoleColor.Yellow);
+			BootupConsole.WriteLine("Reported Capacity : 2 TB (2,199,023,255,552 bytes)", ConsoleColor.Yellow, ConsoleColor.Black);
 
 			Thread.Sleep(500);
 			BootupConsole.NextLine();
 
 
-			BootupConsole.WriteLineColor("    Found Device!", ConsoleColor.Green);
+			BootupConsole.WriteLine("    Found Device!", ConsoleColor.Green, ConsoleColor.Black);
 
 			Thread.Sleep(50);
-			BootupConsole.Write("        ");
+			BootupConsole.Write("                ");
 			BootupConsole.BeginCharacterAnimation(new char[8] { '|', '/', '-', '\\', '|', '/', '-', '\\' }, 6, 6, 50, BootupConsole.GetCursorPosition());
-			BootupConsole.WriteLineColor("    ID                : 0x02", ConsoleColor.Yellow);
+			BootupConsole.WriteLine("ID                : 0x02", ConsoleColor.Yellow, ConsoleColor.Black);
 
 			Thread.Sleep(50);
-			BootupConsole.Write("        ");
+			BootupConsole.Write("                ");
 			BootupConsole.BeginCharacterAnimation(new char[8] { '|', '/', '-', '\\', '|', '/', '-', '\\' }, 6, 6, 50, BootupConsole.GetCursorPosition());
-			BootupConsole.WriteLineColor("    Type              : SSD", ConsoleColor.Yellow);
+			BootupConsole.WriteLine("Type              : SSD", ConsoleColor.Yellow, ConsoleColor.Black);
 
 			Thread.Sleep(50);
-			BootupConsole.Write("        ");
+			BootupConsole.Write("                ");
 			BootupConsole.BeginCharacterAnimation(new char[8] { '|', '/', '-', '\\', '|', '/', '-', '\\' }, 6, 6, 50, BootupConsole.GetCursorPosition());
-			BootupConsole.WriteLineColor("    Vendor            : Samsung", ConsoleColor.Yellow);
+			BootupConsole.WriteLine("Vendor            : Samsung", ConsoleColor.Yellow, ConsoleColor.Black);
 
 			Thread.Sleep(50);
-			BootupConsole.Write("        ");
+			BootupConsole.Write("                ");
 			BootupConsole.BeginCharacterAnimation(new char[8] { '|', '/', '-', '\\', '|', '/', '-', '\\' }, 6, 6, 50, BootupConsole.GetCursorPosition());
-			BootupConsole.WriteLineColor("    Reported Capacity : 500 GB (536,870,912,000 bytes)", ConsoleColor.Yellow);
+			BootupConsole.WriteLine("Reported Capacity : 500 GB (536,870,912,000 bytes)", ConsoleColor.Yellow, ConsoleColor.Black);
 
 			Thread.Sleep(250);
 			BootupConsole.WriteLine("Done!");
@@ -160,7 +162,7 @@ public static class GameAPI
 
 			Thread.Sleep(500);
 
-			BootupConsole.WriteLineColor("Booting from EFI partition on device '0x02'...", ConsoleColor.Yellow);
+			BootupConsole.WriteLine("Booting from EFI partition on device '0x02'...", ConsoleColor.Yellow, ConsoleColor.Black);
 			Thread.Sleep(1000);
 
 			BootupConsole.Clear();
@@ -176,7 +178,7 @@ public static class GameAPI
 			BootupConsole.Clear();
 
 			BootupConsole.WriteLine("Kennedy Computers Microprocessor Kernel");
-			BootupConsole.WriteLine("(C) 2020");
+			BootupConsole.WriteLine("(C) 2018");
 			BootupConsole.NextLine();
 
 			Thread.Sleep(750);
@@ -184,44 +186,44 @@ public static class GameAPI
 			BootupConsole.WriteLine("Loading modules... ");
 			Thread.Sleep(500);
 
-			BootupConsole.WriteColor("  [fs.sys]      Common Filesystem Driver", ConsoleColor.Yellow);
+			BootupConsole.Write("  [fs.sys]      Common Filesystem Driver", ConsoleColor.Yellow, ConsoleColor.Black);
 			for (int i = 0; i < 20; i++)
 			{
 				BootupConsole.Write('.');
 				Thread.Sleep(50);
 			}
-			BootupConsole.WriteLineColor(" loaded", ConsoleColor.Green);
+			BootupConsole.WriteLine(" loaded", ConsoleColor.Green, ConsoleColor.Black);
 
-			BootupConsole.WriteColor("  [netman.sys]  Network Management Driver", ConsoleColor.Yellow);
+			BootupConsole.Write("  [netman.sys]  Network Management Driver", ConsoleColor.Yellow, ConsoleColor.Black);
 			for (int i = 0; i < 10; i++)
 			{
 				BootupConsole.Write('.');
 				Thread.Sleep(50);
 			}
-			BootupConsole.WriteLineColor(" loaded", ConsoleColor.Green);
+			BootupConsole.WriteLine(" loaded", ConsoleColor.Green, ConsoleColor.Black);
 
-			BootupConsole.WriteColor("  [kcon.sys]    Kennedy Console Driver", ConsoleColor.Yellow);
+			BootupConsole.Write("  [kcon.sys]    Kennedy Console Driver", ConsoleColor.Yellow, ConsoleColor.Black);
 			for (int i = 0; i < 25; i++)
 			{
 				BootupConsole.Write('.');
 				Thread.Sleep(50);
 			}
-			BootupConsole.WriteLineColor(" loaded", ConsoleColor.Green);
+			BootupConsole.WriteLine(" loaded", ConsoleColor.Green, ConsoleColor.Black);
 
-			BootupConsole.WriteColor("  [session.sys] User-Space Session Handler Driver", ConsoleColor.Yellow);
+			BootupConsole.Write("  [session.sys] User-Space Session Handler Driver", ConsoleColor.Yellow, ConsoleColor.Black);
 			for (int i = 0; i < 15; i++)
 			{
 				BootupConsole.Write('.');
 				Thread.Sleep(50);
 			}
-			BootupConsole.WriteLineColor(" loaded", ConsoleColor.Green);
+			BootupConsole.WriteLine(" loaded", ConsoleColor.Green, ConsoleColor.Black);
 			BootupConsole.NextLine();
 
 			Thread.Sleep(250);
 
-			BootupConsole.WriteColor("  Module reliability checking... ", ConsoleColor.Yellow);
+			BootupConsole.Write("  Module reliability checking... ", ConsoleColor.Yellow, ConsoleColor.Black);
 			Thread.Sleep(500);
-			BootupConsole.WriteLineColor(" 0 errors", ConsoleColor.Green);
+			BootupConsole.WriteLine(" 0 errors", ConsoleColor.Green, ConsoleColor.Black);
 
 			Thread.Sleep(250);
 
@@ -234,7 +236,7 @@ public static class GameAPI
 
 			BootupConsole.Write("Initiating user session... ");
 			Thread.Sleep(500);
-			BootupConsole.WriteLineColor("done", ConsoleColor.Green);
+			BootupConsole.WriteLine("done", ConsoleColor.Green, ConsoleColor.Black);
 			BootupConsole.NextLine();
 
 			Thread.Sleep(250);
@@ -265,17 +267,93 @@ public static class GameAPI
 
 			Thread.Sleep(500);
 
-			BootupConsole.CursorVisible = true;
-
 			EventManager.HandleEventsByTrigger(Trigger.BootupSequenceFinished);
+
+			BootupConsole.CursorVisible = true;
 
 			Current = Sections.Game;
 		});
 
 	}
 
+	/// <summary>
+	/// Intended to be executed in seperate thread from caller
+	/// </summary>
+	/// <param name="Query">The user query to handle</param>
 	public static void HandleUserInput(InputQuery Query)
 	{
+		if (Query.Command.Length == 0)
+			return;
 
+		switch (Query.Command.ToUpper())
+		{
+			case "EXIT":
+				Current = Sections.MainMenu;
+				return;
+
+			case "QUERY":
+				if (Query.Arguments.Count == 0)
+					return;
+
+				GameConsole.WriteLine($"RSI Status : {Remote.TryGetRSI(Query.Arguments[0], out UserAccount User, out Computer Host, out string Path)}");
+				GameConsole.WriteLine($"Username   : {(User is not null ? User.Username : "null")}");
+				GameConsole.WriteLine($"Host       : {(Host is not null ? Host.Name : "null")}");
+				GameConsole.WriteLine($"             {(Host is not null ? Host.Address : "null")}");
+				GameConsole.WriteLine($"Path       : {Path}");
+
+				return;
+
+			case "CURRENTMISSION":
+				GameConsole.WriteLine($"'{CurrentMission.Name}'");
+
+				foreach (Event e in CurrentMission.Events)
+					GameConsole.WriteLine($"  Event: On '{e.Trigger}' -> {e.ScriptPath}");
+
+				return;
+
+			case "CLEAR":
+				GameConsole.Clear();
+				return;
+
+			case "UITEST":
+				GameConsole.Write("Running MT UI test... ");
+
+				GameConsole.WriteCharInPlace('1');
+				Computers.Computers[0].TryOpenSession("jason", out Player.CurrentSession);
+				Thread.Sleep(1000);
+
+				GameConsole.WriteCharInPlace('2');
+				Player.CurrentSession.PathNode = Player.CurrentSession.Host.GetNodeFromPath("/home/jason");
+				Thread.Sleep(1000);
+
+				GameConsole.WriteCharInPlace('3');
+				Computers.Computers[1].TryOpenSession("Konym", out Player.CurrentSession);
+				Thread.Sleep(1000);
+
+				GameConsole.WriteCharInPlace('4');
+				Player.CurrentSession.PathNode = Player.CurrentSession.Host.GetNodeFromPath("/home");
+				Thread.Sleep(1000);
+
+				GameConsole.WriteCharInPlace('5');
+				Computers.Computers[0].TryOpenSession("jason", out Player.CurrentSession);
+				Thread.Sleep(1000);
+
+				GameConsole.WriteCharInPlace('6');
+				Player.CurrentSession.PathNode = Player.CurrentSession.Host.GetNodeFromPath("/home/jason");
+				Thread.Sleep(1000);
+
+				GameConsole.WriteCharInPlace('7');
+				Computers.Computers[1].TryOpenSession("Konym", out Player.CurrentSession);
+				Thread.Sleep(1000);
+
+				GameConsole.WriteCharInPlace('8');
+				Player.CurrentSession.PathNode = Player.CurrentSession.Host.GetNodeFromPath("/home/Konym");
+
+				GameConsole.Write("done.");
+				GameConsole.NextLine();
+				return;
+		}
+
+		return;
 	}
 }

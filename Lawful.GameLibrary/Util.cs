@@ -10,9 +10,9 @@ public static class Util
 	public static void PrintPrompt()
 	{
 		GameConsole.Write("/ [");
-		GameConsole.WriteColor(Player.CurrentSession.User.Username, ConsoleColor.Green);
+		GameConsole.WriteLine(Player.CurrentSession.User.Username, ConsoleColor.Green, ConsoleColor.Black);
 		GameConsole.Write("] [");
-		GameConsole.WriteColor(Player.CurrentSession.Host.Address, ConsoleColor.Green);
+		GameConsole.WriteLine(Player.CurrentSession.Host.Address, ConsoleColor.Green, ConsoleColor.Black);
 		GameConsole.WriteLine(']');
 
 		GameConsole.Write($"\\ {Player.CurrentSession.PathNode.GetPath()} > ");
@@ -21,23 +21,23 @@ public static class Util
 		//	Console.WriteLine($"/ [{Player.ConnectionInfo.User.Username} @ {Player.ConnectionInfo.PC.Address}]");
 	}
 
-	public static void WriteColor(this HConsole Con, string text, ConsoleColor color)
-	{
-		ConsoleColor initialcolor = Con.ForegroundColor;
-		Con.ForegroundColor = color;
-		Con.Write(text);
-		Con.ForegroundColor = initialcolor;
-	}
+	//	public static void WriteColor(this TextBox Con, string text, ConsoleColor color)
+	//	{
+	//		ConsoleColor initialcolor = Con.ForegroundColor;
+	//		Con.ForegroundColor = color;
+	//		Con.Write(text);
+	//		Con.ForegroundColor = initialcolor;
+	//	}
+	//	
+	//	public static void WriteLineColor(this TextBox Con, string text, ConsoleColor color)
+	//	{
+	//		ConsoleColor initialcolor = Con.ForegroundColor;
+	//		Con.ForegroundColor = color;
+	//		Con.WriteLine(text);
+	//		Con.ForegroundColor = initialcolor;
+	//	}
 
-	public static void WriteLineColor(this HConsole Con, string text, ConsoleColor color)
-	{
-		ConsoleColor initialcolor = Con.ForegroundColor;
-		Con.ForegroundColor = color;
-		Con.WriteLine(text);
-		Con.ForegroundColor = initialcolor;
-	}
-
-	public static void WriteDynamic(this HConsole Con, string text, int delaymiliseconds)
+	public static void WriteDynamic(this TextBox Con, string text, int delaymiliseconds)
 	{
 		foreach (char c in text)
 		{
@@ -46,12 +46,13 @@ public static class Util
 		}
 	}
 
-	public static void WriteDynamicColor(this HConsole Con, string text, int delaymiliseconds, ConsoleColor color)
+	public static void WriteDynamicColor(this TextBox Con, string text, int delaymiliseconds, ConsoleColor color)
 	{
-		ConsoleColor initialcolor = Con.ForegroundColor;
-		Con.ForegroundColor = color;
-		Con.WriteDynamic(text, delaymiliseconds);
-		Con.ForegroundColor = initialcolor;
+		foreach (char c in text)
+		{
+			Con.Write(c, color, ConsoleColor.Black);
+			Thread.Sleep(delaymiliseconds);
+		}
 	}
 
 	//	public static string ReadLineSecret()
@@ -100,10 +101,8 @@ public static class Util
 	//		Console.CursorVisible = true;
 	//	}
 
-	public static void BeginCharacterAnimation(this HConsole Con, char[] Frames, int CycleCountLowerLimit, int CycleCountUpperLimit, int SleepIntervalMilliseconds, (int X, int Y) Position)
+	public static void BeginCharacterAnimation(this TextBox Con, char[] Frames, int CycleCountLowerLimit, int CycleCountUpperLimit, int SleepIntervalMilliseconds, (int X, int Y) Position)
 	{
-		Con.CursorVisible = false;
-	
 		Random rand = new(DateTime.UtcNow.Second);
 	
 		int Count = 0;
@@ -113,10 +112,12 @@ public static class Util
 			if (Count == Frames.Length)
 			{
 				Count = 0;
-				Con.SetCursorPosition(Position.X, Position.Y);
+				Con.CursorX = Position.X;
+				Con.CursorY = Position.Y;
 			}
 
-			Con.SetCursorPosition(Position.X, Position.Y);
+			Con.CursorX = Position.X;
+			Con.CursorY = Position.Y;
 
 			Con.Write(Frames[Count]);
 	
@@ -125,9 +126,8 @@ public static class Util
 			Thread.Sleep(SleepIntervalMilliseconds);
 		}
 
-		Con.SetCursorPosition(Position.X, Position.Y);
-
-		Con.CursorVisible = true;
+		Con.CursorX = Position.X;
+		Con.CursorY = Position.Y;
 	}
 
 	// Basic login handler with a max tries counter

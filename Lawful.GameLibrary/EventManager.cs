@@ -2,6 +2,7 @@
 using Jint.Runtime.Interop;
 
 using Haven;
+using Lawful.GameLibrary.UI;
 
 namespace Lawful.GameLibrary;
 
@@ -9,31 +10,23 @@ using static UI.UIManager;
 
 public static class EventManager
 {
-	private static Jint.Engine JavaScriptEngine;
+	private static Jint.Engine JSE;
 	private static List<Event> Events;
 
 	public static void Initialize()
 	{
-		JavaScriptEngine = new(options =>
+		JSE = new(options =>
 		{
 			options.AddExtensionMethods(typeof(Util));
 		});
 
-		JavaScriptEngine.SetValue("BootupConsole", BootupConsole);
-		JavaScriptEngine.SetValue("GameConsole", GameConsole);
+		JSE.SetValue("BootupConsole", BootupConsole);
+		JSE.SetValue("GameConsole", GameConsole);
 
-		JavaScriptEngine.SetValue("ConsoleColor", TypeReference.CreateTypeReference(JavaScriptEngine, typeof(ConsoleColor)));
-		JavaScriptEngine.SetValue("Sleep", new Action<int>(Thread.Sleep));
-
-		JavaScriptEngine.SetValue("BWriteDynamic", new Action<string, int>(BootupConsole.WriteDynamic));
-		JavaScriptEngine.SetValue("BWriteDynamicColor", new Action<string, int, ConsoleColor>(BootupConsole.WriteDynamicColor));
-		JavaScriptEngine.SetValue("BWriteColor", new Action<string, ConsoleColor>(BootupConsole.WriteColor));
-		JavaScriptEngine.SetValue("BWriteLineColor", new Action<string, ConsoleColor>(BootupConsole.WriteLineColor));
-
-		JavaScriptEngine.SetValue("GWriteDynamic", new Action<string, int>(GameConsole.WriteDynamic));
-		JavaScriptEngine.SetValue("GWriteDynamicColor", new Action<string, int, ConsoleColor>(GameConsole.WriteDynamicColor));
-		JavaScriptEngine.SetValue("GWriteColor", new Action<string, ConsoleColor>(GameConsole.WriteColor));
-		JavaScriptEngine.SetValue("GWriteLineColor", new Action<string, ConsoleColor>(GameConsole.WriteLineColor));
+		JSE.SetValue("KeyAvailable", ReadKey.KeyAvailable);
+		JSE.SetValue("ReadKey", new Func<bool, ConsoleKeyInfo>(ReadKey.ReadKey));
+		JSE.SetValue("ConsoleColor", TypeReference.CreateTypeReference(JSE, typeof(ConsoleColor)));
+		JSE.SetValue("Sleep", new Action<int>(Thread.Sleep));
 
 		Events = new();
 	}
@@ -57,7 +50,7 @@ public static class EventManager
 			if (ScriptSource.Length == 0)
 				continue;
 
-			JavaScriptEngine.Execute(ScriptSource);
+			JSE.Execute(ScriptSource);
 		}
 	}
 }
