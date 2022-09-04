@@ -1,4 +1,8 @@
 <Config>
-	<ForceCSRenderer value="false"/>
-	<ShowFPS value="true"/>
+	<!--<ForceCSRenderer/>-->
+	<ShowFPS/>
+	<EnableTypewriter/>
+
+	<!--Any floating point value between from 0 to 1-->
+	<TypewriterVolume value="0.1"/>
 </Config>

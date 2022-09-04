@@ -1,8 +1,4 @@
 ﻿using Jint;
-using Jint.Runtime.Interop;
-
-using Haven;
-using Lawful.GameLibrary.UI;
 
 namespace Lawful.GameLibrary;
 
@@ -10,7 +6,7 @@ using static UI.UIManager;
 
 public static class EventManager
 {
-	private static Jint.Engine JSE;
+	private static Engine JSE;
 	private static List<Event> Events;
 
 	public static void Initialize()
@@ -24,8 +20,8 @@ public static class EventManager
 		JSE.SetValue("GameConsole", GameConsole);
 
 		JSE.SetValue("KeyAvailable", ReadKey.KeyAvailable);
-		JSE.SetValue("ReadKey", new Func<bool, ConsoleKeyInfo>(ReadKey.ReadKey));
-		JSE.SetValue("ConsoleColor", TypeReference.CreateTypeReference(JSE, typeof(ConsoleColor)));
+		JSE.SetValue("ReadKey", ReadKey.ReadKey);
+		JSE.SetValue("ConsoleColor", typeof(ConsoleColor));
 		JSE.SetValue("Sleep", new Action<int>(Thread.Sleep));
 
 		Events = new();
@@ -50,7 +46,18 @@ public static class EventManager
 			if (ScriptSource.Length == 0)
 				continue;
 
-			JSE.Execute(ScriptSource);
+			Log.WriteLine($"EventManager :: Executing '{e.ScriptPath}' for '{t}'...");
+
+			try
+			{
+				JSE.Execute(ScriptSource);
+			}
+			catch (Exception ex)
+			{
+				Log.WriteLine($"EventManager :: Script exception for '{e.ScriptPath}'");
+				Log.WriteLine($"   {ex.Message}", ConsoleColor.Red, ConsoleColor.Black);
+				Log.WriteLine($"{ex.StackTrace}");
+			}
 		}
 	}
 }

@@ -11,7 +11,7 @@ public static class SaveAPI
 	// b. the path to the user's save file
 	public static (bool, string) InitSave(string UserPCName, string UserProfileName, string UserStorySelection)
 	{
-		Story UserStory = Story.DeserializeFromFile($@".\Content\Stories\{UserStorySelection}\Story.xml");
+		Story UserStory = Story.DeserializeFromFile($@"Content\Stories\{UserStorySelection}\Story.xml".ToPlatformPath());
 
 		User User = new()
 		{
@@ -21,7 +21,7 @@ public static class SaveAPI
 		};
 
 		// Define our path to the new user's save folder
-		string PathToNewSaveFolder = Path.Combine(Directory.GetCurrentDirectory() + @$"\Content\Saves\{UserProfileName}");
+		string PathToNewSaveFolder = Path.Combine(Directory.GetCurrentDirectory() + @$"\Content\Saves\{UserProfileName}".ToPlatformPath());
 
 		// Create our new save folder if it does not exist already
 		if (!Directory.Exists(PathToNewSaveFolder))
@@ -32,7 +32,7 @@ public static class SaveAPI
 		try
 		{
 			// Load in the default ComputerStructure from our selected storyline, update it to the user's selected values for PC and Profile name, and re-serialize it to their save folder
-			ComputerStructure Computers = ComputerStructure.DeserializeFromFile($@".\Content\Stories\{UserStorySelection}\Computers.xml");
+			ComputerStructure Computers = ComputerStructure.DeserializeFromFile($@"Content\Stories\{UserStorySelection}\Computers.xml".ToPlatformPath());
 
 			Computer UserPC = Computers.GetComputer("REPLACETHIS");
 			UserAccount UserAccount = UserPC.GetUser("REPLACETHIS");
@@ -40,7 +40,7 @@ public static class SaveAPI
 			UserPC.Name = UserPCName;
 			UserAccount.Username = UserProfileName;
 
-			Computers.SerializeToFile($@"{PathToNewSaveFolder}\Computers.xml");
+			Computers.SerializeToFile($@"{PathToNewSaveFolder}\Computers.xml".ToPlatformPath());
 
 			// Do some initialization on the User object now that we have the ComputerStructure loaded in and then serialize that to the user's save folder
 			User.HomePC = UserPC;
@@ -49,10 +49,10 @@ public static class SaveAPI
 			// This will create the session that we are going to serialize with the rest of the user class that will have all of our connection data bundled in when we load the save
 			User.InstantiateSession();
 
-			User.SerializeToFile($@"{PathToNewSaveFolder}\User.xml");
+			User.SerializeToFile($@"{PathToNewSaveFolder}\User.xml".ToPlatformPath());
 
 			// And we're done, report success and the path to the user's save file
-			return (true, $@"{PathToNewSaveFolder}\User.xml");
+			return (true, $@"{PathToNewSaveFolder}\User.xml".ToPlatformPath());
 		}
 		catch (Exception e)
 		{
@@ -72,10 +72,10 @@ public static class SaveAPI
 		{
 			Player = User.DeserializeFromFile(PathToSave);
 
-			CurrentStory = Story.DeserializeFromFile($@".\Content\Stories\{Player.StoryID}\Story.xml");
+			CurrentStory = Story.DeserializeFromFile($@"Content\Stories\{Player.StoryID}\Story.xml".ToPlatformPath());
 			CurrentMission = CurrentStory.GetMission(Player.CurrentMissionID);
 
-			Computers = ComputerStructure.DeserializeFromFile($@".\Content\Saves\{Player.ProfileName}\Computers.xml");
+			Computers = ComputerStructure.DeserializeFromFile($@"Content\Saves\{Player.ProfileName}\Computers.xml".ToPlatformPath());
 		}
 		catch (Exception e)
 		{

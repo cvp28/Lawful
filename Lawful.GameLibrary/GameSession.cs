@@ -14,6 +14,9 @@ public static class GameSession
 
 	public static bool SkipBootupSequence;
 
+	// Used to temporarily disable the typewriter
+	public static bool DoTypewriter;
+
 	public static string CurrentStoryRoot
 	{
 		get => $@".\Content\Stories\{CurrentStory.Name}";

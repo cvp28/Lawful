@@ -1,9 +1,3 @@
-function BetterReadKey()
-{
-	while (KeyAvailable) { ReadKey(true); }
-	ReadKey(true);
-}
-
 Sleep(2000);
 BootupConsole.CursorVisible = false;
 
@@ -16,11 +10,11 @@ BootupConsole.NextLine();
 Sleep(1000);
 
 BootupConsole.WriteLine("Dad: Alex! Can you come out here for a second?");
-BetterReadKey();
+ReadKey(true);
 BootupConsole.WriteLine("Alex: Yeah?");
-BetterReadKey();
+ReadKey(true);
 BootupConsole.WriteLine("Dad: Report card came.");
-BetterReadKey();
+ReadKey(true);
 BootupConsole.WriteLine("Alex: Don't bother. Nothing but F's on that paper.");
 Sleep(2000);
 BootupConsole.NextLine();
@@ -32,13 +26,13 @@ BootupConsole.WriteLine("(dramatic envelope ripping noises)", ConsoleColor.Yello
 Sleep(1000);
 BootupConsole.NextLine();
 BootupConsole.WriteLine("Dad: Let's see here... WOW. All A's, huh?");
-BetterReadKey();
+ReadKey(true);
 BootupConsole.WriteLine("Alex: Hmm, must have been sent to the wrong address.");
-BetterReadKey();
+ReadKey(true);
 BootupConsole.WriteLine("Dad: Don't sell yourself short, bud. Remember our deal?");
-BetterReadKey();
+ReadKey(true);
 BootupConsole.WriteLine("Alex: I do actually, I'll go get ready!");
-BetterReadKey();
+ReadKey(true);
 
 Sleep(750);
 BootupConsole.NextLine();
@@ -49,15 +43,15 @@ BootupConsole.NextLine();
 Sleep(1000);
 
 BootupConsole.WriteLine("Dad: Alex, you have been staring at that shelf for 10 minutes.");
-BetterReadKey();
+ReadKey(true);
 BootupConsole.WriteLine("Alex: wait wha-");
-BetterReadKey();
+ReadKey(true);
 BootupConsole.WriteLine("Dad: Don't tell me you were daydreaming about a computer of all things.");
-BetterReadKey();
+ReadKey(true);
 BootupConsole.WriteLine("Alex: ");
-BetterReadKey();
+ReadKey(true);
 BootupConsole.WriteLine("Dad: Just hurry up and pick a computer already, the A/C in this place blows too cold.");
-BetterReadKey();
+ReadKey(true);
 BootupConsole.Write("Alex: ");
 Sleep(600);
 BootupConsole.Write("Points", ConsoleColor.Yellow, ConsoleColor.Black);
@@ -74,7 +68,7 @@ BootupConsole.NextLine();
 Sleep(750);
 
 BootupConsole.WriteLine("Alex: Alright, cables are hooked up and everything looks to be in order.");
-BetterReadKey();
+ReadKey(true);
 BootupConsole.WriteLine("Alex: Let's see what this button does...");
 
 Sleep(1500);

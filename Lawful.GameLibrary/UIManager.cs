@@ -1,6 +1,6 @@
-﻿using Esprima.Ast;
-using Haven;
+﻿using Haven;
 using Lawful.InputParser;
+using System.Diagnostics;
 
 namespace Lawful.GameLibrary.UI;
 
@@ -25,6 +25,8 @@ public static class UIManager
 	public static ReadKeyBridge ReadKey;
 	public static Label InputHeader;
 
+	private static bool DoGameUIUpdate;
+
 	private static WidgetGroup _current;
 	public static WidgetGroup Current
 	{
@@ -41,6 +43,12 @@ public static class UIManager
 
 	public static void Initialize()
 	{
+		Log = new(ScreenSpace.Full);
+		Log.Visible = false;
+
+		Log.Write("UIManager :: Constructing UI... ");
+		Stopwatch sw = Stopwatch.StartNew();
+
 		ConstructMainMenu();
 		ConstructNewGame();
 		ConstructLoadGame();
@@ -58,8 +66,6 @@ public static class UIManager
 		Sections.Bootup.Hide(false);
 		Sections.Game.Hide(false);
 
-		Log = new(ScreenSpace.Full);
-		Log.Visible = false;
 
 		ReadKey = new();
 
@@ -77,14 +83,20 @@ public static class UIManager
 		if (GameOptions.ShowFPS)
 		{
 			Engine.AddWidget(FPSLabel);
-			Engine.AddUpdateTask("UpdateFPS", delegate (State s) { FPSLabel.Text = $"{s.FPS,-4} FPS :: {s.LastFrameTime,-1} ms"; });
+			Engine.AddUpdateTask("UpdateFPS", delegate (State s)
+			{
+				string NewText = $"{s.FPS,-4} FPS :: {s.LastFrameTime,-1} ms";
+
+				FPSLabel.X = Console.WindowWidth - NewText.Length - 1;
+				FPSLabel.Text = NewText;
+			});
 		}
 
 		Engine.AddWidget(Log);
-
-		Log.WriteLine("UI initialized!");
-
 		Engine.AddUpdateTask("ToggleLog", ToggleLog);
+
+		sw.Stop();
+		Log.WriteLine($"done. ({sw.ElapsedMilliseconds} ms)");
 	}
 
 	private static void EscapeProcedure(State s)
@@ -112,7 +124,7 @@ public static class UIManager
 		}
 	}
 
-	public static void ConstructMainMenu()
+	private static void ConstructMainMenu()
 	{
 		Sections.MainMenu = new();
 
@@ -142,7 +154,7 @@ public static class UIManager
 		Sections.MainMenu.OnHide = delegate (WidgetGroup wg) { Engine.FocusedWidget = null; };
 	}
 
-	public static void ConstructNewGame()
+	private static void ConstructNewGame()
 	{
 		Sections.NewGame = new();
 
@@ -153,7 +165,7 @@ public static class UIManager
 		Label Line5 = new(1, 4, @"/_____/  \__/\_\   |__/|__/  /_/     \____/  /_/   ", ConsoleColor.Red, ConsoleColor.Black);
 		Label NewGm = new(1, 5, @"\ Start a new game", ConsoleColor.Yellow, ConsoleColor.Black);
 
-		Label HelpLabel = new(1, 7, "Press [ESC] to go back");
+		Label HelpLabel = new(1, 7);
 
 		Label StatusLabel = new(1, 9);
 
@@ -197,46 +209,55 @@ public static class UIManager
 
 		PCNameField.OnInput = delegate (string Input)
 		{
-			if (Input.Length == 0) { return; }
+			Task.Run(delegate ()
+			{
+				if (Input.Length == 0) { return; }
 
-			PCName = Input;
+				PCName = Input;
 
-			StatusLabel.Text = "Creating save... ";
-			(bool Succeeded, string StoryPath) = SaveAPI.InitSave(PCName, ProfileName, SelectedStory);
+				StatusLabel.Text = "Creating save... ";
 
-			if (!Succeeded)
-				StatusLabel.Text = "Creating save... failed. Check logs in game directory for more details.";
-			else
-				StatusLabel.Text = "Creating save... successful.";
+				(bool Succeeded, string StoryPath) = SaveAPI.InitSave(PCName, ProfileName, SelectedStory);
+
+				if (!Succeeded)
+					StatusLabel.Text = "Creating save... failed. Check logs in game directory for more details.";
+				else
+					StatusLabel.Text = "Creating save... successful.";
+			});
 		};
 
 		Sections.NewGame.OnShow = delegate (WidgetGroup wg)
 		{
-			ProfileNameField.Visible = false;
-			PCNameField.Visible = false;
-
-			ProfileNameField.Clear();
-			PCNameField.Clear();
-
-			StatusLabel.Text = "Getting installed stories...";
-
-			foreach (string StoryName in GameAPI.GetInstalledStorylines())
+			Task.Run(delegate ()
 			{
-				StoryMenu.AddOption(StoryName, delegate ()
+				ProfileNameField.Visible = false;
+				PCNameField.Visible = false;
+
+				ProfileNameField.Clear();
+				PCNameField.Clear();
+
+				HelpLabel.Text = string.Empty;
+				StatusLabel.Text = "Getting installed stories...";
+
+				foreach (string StoryName in GameAPI.GetInstalledStorylines())
 				{
-					SelectedStory = StoryName;
-					StoryMenu.Visible = false;
+					StoryMenu.AddOption(StoryName, delegate ()
+					{
+						SelectedStory = StoryName;
+						StoryMenu.Visible = false;
 
-					ProfileNameField.Visible = true;
-					Engine.FocusedWidget = ProfileNameField;
+						ProfileNameField.Visible = true;
+						Engine.FocusedWidget = ProfileNameField;
 
-					StatusLabel.Text = "(2/3) Enter a profile name";
-				});
-			}
+						StatusLabel.Text = "(2/3) Enter a profile name";
+					});
+				}
 
-			StatusLabel.Text = "(1/3) Select an installed story to play";
+				StatusLabel.Text = "(1/3) Select an installed story to play";
 
-			Engine.AddUpdateTask("NewGameEscape", EscapeProcedure);
+				Engine.AddUpdateTask("NewGameEscape", EscapeProcedure);
+				HelpLabel.Text = "Press [ESC] to go back";
+			});
 			Engine.FocusedWidget = StoryMenu;
 		};
 
@@ -248,7 +269,7 @@ public static class UIManager
 		};
 	}
 
-	public static void ConstructLoadGame()
+	private static void ConstructLoadGame()
 	{
 		Sections.LoadGame = new();
 
@@ -259,7 +280,7 @@ public static class UIManager
 		Label Line5 = new(1, 4, @"/_____/  \__/\_\   |__/|__/  /_/     \____/  /_/   ", ConsoleColor.Red, ConsoleColor.Black);
 		Label LodGm = new(1, 5, @"\ Load a saved game", ConsoleColor.Yellow, ConsoleColor.Black);
 
-		Label HelpLabel = new(1, 7, "Press [ESC] to go back");
+		Label HelpLabel = new(1, 7);
 
 		Label StatusLabel = new(1, 9);
 		Menu SaveMenu = new(1, 10) { SelectedOptionStyle = MenuStyle.Highlighted };
@@ -276,24 +297,36 @@ public static class UIManager
 
 		Sections.LoadGame.OnShow = delegate (WidgetGroup wg)
 		{
-			StatusLabel.Text = "Getting installed stories...";
-
-			int Count = 0;
-
-			foreach (var Save in GameAPI.GetSaves())
+			Task.Run(delegate ()
 			{
-				Count++;
-				SaveMenu.AddOption(Save.Name, delegate ()
+				HelpLabel.Text = string.Empty;
+				StatusLabel.Text = "Getting installed stories...";
+
+				int Count = 0;
+
+				foreach (var Save in GameAPI.GetSaves())
 				{
-					SaveAPI.LoadGameFromSave(Save.Path);
-					GameSession.SkipBootupSequence = true;
-					Current = Sections.Bootup;
-				});
-			}
+					Count++;
+					SaveMenu.AddOption(Save.Name, delegate ()
+					{
+						Task.Run(delegate ()
+						{
+							StatusLabel.Text = $"Loading saved game '{Save.Name}'...";
 
-			StatusLabel.Text = "Select a saved game to load";
+							SaveAPI.LoadGameFromSave(Save.Path);
 
-			Engine.AddUpdateTask("LoadGameEscape", EscapeProcedure);
+							GameSession.SkipBootupSequence = false;
+							Current = Sections.Bootup;
+						});
+					});
+				}
+
+				StatusLabel.Text = "Select a saved game to load";
+
+				Engine.AddUpdateTask("LoadGameEscape", EscapeProcedure);
+				HelpLabel.Text = "Press [ESC] to go back";
+			});
+
 			Engine.FocusedWidget = SaveMenu;
 		};
 
@@ -305,7 +338,7 @@ public static class UIManager
 		};
 	}
 
-	public static void ConstructOptions()
+	private static void ConstructOptions()
 	{
 		Sections.Options = new();
 
@@ -321,7 +354,7 @@ public static class UIManager
 		};
 	}
 
-	public static void ConstructCredits()
+	private static void ConstructCredits()
 	{
 		Sections.Credits = new();
 
@@ -337,7 +370,7 @@ public static class UIManager
 		};
 	}
 
-	public static void ConstructBootup()
+	private static void ConstructBootup()
 	{
 		Sections.Bootup = new();
 
@@ -359,9 +392,7 @@ public static class UIManager
 		};
 	}
 
-	private static bool DoGameUIUpdate;
-
-	public static void ConstructGame()
+	private static void ConstructGame()
 	{
 		Sections.Game = new();
 
@@ -407,6 +438,8 @@ public static class UIManager
 
 	private static void UpdateGameUI()
 	{
+		Log.WriteLine("UIManager :: Entering UpdateGameUI thread");
+
 		while (DoGameUIUpdate)
 		{
 			string Username = GameSession.Player.CurrentSession.User.Username;
@@ -418,6 +451,8 @@ public static class UIManager
 
 			Thread.Sleep(100);
 		}
+
+		Log.WriteLine("UIManager :: Exiting UpdateGameUI thread");
 	}
 
 	private static void OnInput(string Input)
@@ -428,7 +463,9 @@ public static class UIManager
 
 		Task.Run(delegate ()
 		{
+			Log.WriteLine($"UIManager :: HandleUserInput task for '{Input}' starting...");
 			GameAPI.HandleUserInput(UserQuery);
+			Log.WriteLine($"UIManager :: HandleUserInput task for '{Input}' finished");
 		});
 	}
 }

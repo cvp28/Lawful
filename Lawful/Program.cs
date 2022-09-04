@@ -1,9 +1,15 @@
-﻿using System.Xml;
+﻿//#define VS
+
+using System.Xml;
+
 using Haven;
+
 using Lawful.GameLibrary;
 using Lawful.GameLibrary.UI;
 
 namespace Lawful;
+
+
 
 public class Lawful
 {
@@ -11,11 +17,15 @@ public class Lawful
 	{
 		Console.ReadKey(true);
 
-		// This will have to be changed to whatever directory the Content folder and runtimeconfig.xml file are stored in.
-		// Line will be removed in production versions of the game.
-		Directory.SetCurrentDirectory(@"C:\Users\Carson\source\repos\Lawful");
+#if VS
+		string Root = @"C:\Users\Carson\source\repos\Lawful";
+#else
+		string Root = Directory.GetCurrentDirectory();
+#endif
 
-		if (File.Exists(@".\runtimeconfig.xml"))
+		Directory.SetCurrentDirectory(Root);
+
+		if (File.Exists(@"runtimeconfig.xml"))
 			ProcessRuntimeConfig();
 
 		if (OperatingSystem.IsWindows() && !GameOptions.ForceCSRenderer)
@@ -27,24 +37,35 @@ public class Lawful
 		UIManager.Initialize();
 		UIManager.Current = Sections.MainMenu;
 
+		Directory.SetCurrentDirectory(@"bin64");
+		AudioManager.Initialize();
+		Directory.SetCurrentDirectory(Root);
+
+		if (GameOptions.EnableTypewriter)
+			GameAPI.InitTypewriter();
+
 		UIManager.Log.WriteLine("Running engine now...");
 
 		// Run Engine
 		Engine.Run();
+
+		AudioManager.FreeAll();
 	}
 
 	static void ProcessRuntimeConfig()
 	{
 		XmlDocument RuntimeConfigDoc = new();
-		RuntimeConfigDoc.Load(@".\runtimeconfig.xml");
+		RuntimeConfigDoc.Load(@"runtimeconfig.xml");
 
-		string ForceCSRendererNodeValue = RuntimeConfigDoc.SelectSingleNode("Config/ForceCSRenderer")?.Attributes["value"]?.Value.ToLower();
-		string ShowFPSNodeValue = RuntimeConfigDoc.SelectSingleNode("Config/ShowFPS")?.Attributes["value"]?.Value.ToLower();
+		GameOptions.ForceCSRenderer = RuntimeConfigDoc.SelectSingleNode("Config/ForceCSRenderer") is not null;
+		GameOptions.ShowFPS = RuntimeConfigDoc.SelectSingleNode("Config/ShowFPS") is not null;
+		GameOptions.EnableTypewriter =  RuntimeConfigDoc.SelectSingleNode("Config/EnableTypewriter") is not null;
 
-		if (ForceCSRendererNodeValue is not null)
-			GameOptions.ForceCSRenderer = ForceCSRendererNodeValue == "true";
+		string TypewriterVolumeNodeValue = RuntimeConfigDoc.SelectSingleNode("Config/TypewriterVolume")?.Attributes["value"]?.Value.ToLower();
 
-		if (ShowFPSNodeValue is not null)
-			GameOptions.ShowFPS = ShowFPSNodeValue == "true";
+		bool SetDefaultVolume = TypewriterVolumeNodeValue is null || !float.TryParse(TypewriterVolumeNodeValue, out GameOptions.TypewriterVolume);
+
+		if (SetDefaultVolume)
+			GameOptions.TypewriterVolume = 0.2f;
 	}
 }

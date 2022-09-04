@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-
+﻿
 namespace Lawful.GameLibrary;
 
 using static GameSession;
@@ -24,16 +23,7 @@ public static class MissionAPI
     {
         try
         {
-            // Get the current mission's Unload method, invoke it, and then unload the mission assembly
-            //  Delegate UnloadHandler = CurrentMissionAssembly
-            //      .GetType($"{MissionAssemblyNamespace}.{MissionAssemblyEntryClassName}")
-            //      .GetMethod("Unload")
-            //      .CreateDelegate<Action<EventManager>>();
-            //  
-            //  UnloadHandler.DynamicInvoke(Events);
-            //  
-            //  MissionAssemblyLoader.Unload();
-            //  MissionAssemblyLoader = null;
+            EventManager.ClearEvents();
         }
         catch (Exception e)
         {

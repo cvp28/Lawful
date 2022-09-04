@@ -4,6 +4,9 @@ using System.Xml.Serialization;
 using Lawful.InputParser;
 using Lawful.GameLibrary.UI;
 
+using Haven;
+using Un4seen.Bass;
+
 namespace Lawful.GameLibrary;
 
 using static UI.UIManager;
@@ -11,29 +14,44 @@ using static GameSession;
 
 public static class GameAPI
 {
+	public static string ToPlatformPath(this string Path)
+	{
+		char PathSeparator = OperatingSystem.IsWindows() ? '\\' : '/';
+
+		Span<char> PathSpan = stackalloc char[Path.Length];
+
+		for (int i = 0; i < PathSpan.Length; i++)
+			if (Path[i] == '\\' || Path[i] == '/')
+				PathSpan[i] = PathSeparator;
+			else
+				PathSpan[i] = Path[i];
+
+		return PathSpan.ToString();
+	}
+
 	public static string[] GetInstalledStorylines()
 	{
 		XmlSerializer sStory = new(typeof(Story));
 		XmlSerializer sCompStruct = new(typeof(ComputerStructure));
 		List<string> ValidStories = new();
-		
-		foreach (string StoryDir in Directory.GetDirectories(@".\Content\Stories"))
+
+		foreach (string StoryDir in Directory.GetDirectories(@"Content\Stories".ToPlatformPath()))
 		{
-			bool HasComputers = File.Exists(@$"{StoryDir}\Computers.xml");
-			bool HasStory = File.Exists(@$"{StoryDir}\Story.xml");
+			bool HasComputers = File.Exists(@$"{StoryDir}\Computers.xml".ToPlatformPath());
+			bool HasStory = File.Exists(@$"{StoryDir}\Story.xml".ToPlatformPath());
 
 			if (!HasComputers || !HasStory)
 				continue;
 
-			using (XmlReader ComputersReader = XmlReader.Create(@$"{StoryDir}\Computers.xml"))
+			using (XmlReader ComputersReader = XmlReader.Create($@"{StoryDir}\Computers.xml".ToPlatformPath()))
 				if (!sCompStruct.CanDeserialize(ComputersReader))
 					continue;
 
-			using (XmlReader StoryReader = XmlReader.Create($@"{StoryDir}\Story.xml"))
+			using (XmlReader StoryReader = XmlReader.Create($@"{StoryDir}\Story.xml".ToPlatformPath()))
 				if (!sStory.CanDeserialize(StoryReader))
 					continue;
 
-			ValidStories.Add(StoryDir.Split('\\').Last());
+			ValidStories.Add(StoryDir.Split('\\', '/').Last());
 		}
 
 		return ValidStories.ToArray();
@@ -45,29 +63,80 @@ public static class GameAPI
 		XmlSerializer sCompStruct = new(typeof(ComputerStructure));
 		List<(string Name, string Path)> ValidSaves = new();
 
-		foreach (string SaveDir in Directory.GetDirectories(@".\Content\Saves"))
+		foreach (string SaveDir in Directory.GetDirectories(@"Content\Saves".ToPlatformPath()))
 		{
-			bool HasComputers = File.Exists($@"{SaveDir}\Computers.xml");
-			bool HasUser = File.Exists($@"{SaveDir}\User.xml");
+			bool HasComputers = File.Exists($@"{SaveDir}\Computers.xml".ToPlatformPath());
+			bool HasUser = File.Exists($@"{SaveDir}\User.xml".ToPlatformPath());
 
 			if (!HasComputers || !HasUser)
 				continue;
 
-			using (XmlReader ComputersReader = XmlReader.Create($@"{SaveDir}\Computers.xml"))
+			using (XmlReader ComputersReader = XmlReader.Create($@"{SaveDir}\Computers.xml".ToPlatformPath()))
 				if (!sCompStruct.CanDeserialize(ComputersReader))
 					continue;
 
-			using (XmlReader UserReader = XmlReader.Create($@"{SaveDir}\User.xml"))
+			using (XmlReader UserReader = XmlReader.Create($@"{SaveDir}\User.xml".ToPlatformPath()))
 				if (!sUser.CanDeserialize(UserReader))
 					continue;
 
-			string Name = SaveDir.Split('\\').Last();
-			string Path = $"{SaveDir}\\User.xml";
+			string Name = SaveDir.Split('\\', '/').Last();
+			string Path = $"{SaveDir}\\User.xml".ToPlatformPath();
 
 			ValidSaves.Add((Name, Path));
 		}
 
 		return ValidSaves.ToArray();
+	}
+
+	private static List<int> NormalKeypressStreams;
+	private static int SpacebarKeypressStream;
+	private static int EnterKeypressStream;
+	private static Random Rand;
+
+	public static void InitTypewriter()
+	{
+		NormalKeypressStreams = new();
+		Rand = new(DateTime.Now.Millisecond);
+
+		NormalKeypressStreams.Add(AudioManager.CreateStream("TypewriterN1", @"Content\Audio\Typewriter\N1.wav".ToPlatformPath()));
+		NormalKeypressStreams.Add(AudioManager.CreateStream("TypewriterN2", @"Content\Audio\Typewriter\N2.wav".ToPlatformPath()));
+		NormalKeypressStreams.Add(AudioManager.CreateStream("TypewriterN3", @"Content\Audio\Typewriter\N3.wav".ToPlatformPath()));
+		NormalKeypressStreams.Add(AudioManager.CreateStream("TypewriterN4", @"Content\Audio\Typewriter\N4.wav".ToPlatformPath()));
+		NormalKeypressStreams.Add(AudioManager.CreateStream("TypewriterN5", @"Content\Audio\Typewriter\N5.wav".ToPlatformPath()));
+
+		EnterKeypressStream = AudioManager.CreateStream("TypewriterEnter", @"Content\Audio\Typewriter\Enter.wav".ToPlatformPath());
+		SpacebarKeypressStream = AudioManager.CreateStream("TypewriterSpacebar", @"Content\Audio\Typewriter\Spacebar.wav".ToPlatformPath());
+
+		foreach (int Stream in NormalKeypressStreams)
+			Bass.BASS_ChannelSetAttribute(Stream, BASSAttribute.BASS_ATTRIB_VOL, GameOptions.TypewriterVolume);
+
+		Bass.BASS_ChannelSetAttribute(EnterKeypressStream, BASSAttribute.BASS_ATTRIB_VOL, GameOptions.TypewriterVolume);
+		Bass.BASS_ChannelSetAttribute(SpacebarKeypressStream, BASSAttribute.BASS_ATTRIB_VOL, GameOptions.TypewriterVolume);
+
+		DoTypewriter = true;
+		Engine.AddUpdateTask("Typewriter", TypewriterTask);
+	}
+
+	public static void TypewriterTask(State s)
+	{
+		if (!s.KeyPressed || !DoTypewriter)
+			return;
+
+		switch (s.KeyInfo.Key)
+		{
+			case ConsoleKey.Spacebar:
+				Bass.BASS_ChannelPlay(SpacebarKeypressStream, true);
+				break;
+
+			case ConsoleKey.Enter:
+				Bass.BASS_ChannelPlay(EnterKeypressStream, true);
+				break;
+
+			default:
+				int Stream = NormalKeypressStreams[Rand.Next(NormalKeypressStreams.Count)];
+				Bass.BASS_ChannelPlay(Stream, true);
+				break;
+		}
 	}
 
 	public static void CommenceBootupTask()
@@ -83,7 +152,7 @@ public static class GameAPI
 			BootupConsole.CursorVisible = false;
 			BootupConsole.Clear();
 
-			//EventManager.HandleEventsByTrigger(Trigger.BootupSequenceStarted);
+			EventManager.HandleEventsByTrigger(Trigger.BootupSequenceStarted);
 
 			BootupConsole.WriteLine("V Systems Company", ConsoleColor.Yellow, ConsoleColor.Black);
 			BootupConsole.WriteLine("(C) 2018", ConsoleColor.Yellow, ConsoleColor.Black);
