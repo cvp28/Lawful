@@ -1,8 +1,6 @@
-<Config>
-	<!--<ForceCSRenderer/>-->
-	<ShowFPS/>
-	<EnableTypewriter/>
-
-	<!--Any floating point value between from 0 to 1-->
-	<TypewriterVolume value="0.1"/>
+﻿<Config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <ShowFPS>true</ShowFPS>
+  <Renderer>WindowsNative</Renderer>
+  <EnableTypewriter>true</EnableTypewriter>
+  <TypewriterVolume>0.08</TypewriterVolume>
 </Config>

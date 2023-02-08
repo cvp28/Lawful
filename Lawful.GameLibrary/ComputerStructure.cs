@@ -1,8 +1,10 @@
-﻿using System.Net;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Net;
+using System.Xml;
 using System.Xml.Serialization;
 
 namespace Lawful.GameLibrary;
-	
+
 public class ComputerStructure
 {
 	[XmlElement("Computer")]
@@ -49,11 +51,16 @@ public class ComputerStructure
 
 	public void SerializeToFile(string Path)
 	{
-		using FileStream fs = new(Path, FileMode.Create);
+		using Stream fs = File.OpenWrite(Path);
+		using XmlWriter xw = XmlWriter.Create(fs, new XmlWriterSettings()
+		{
+			Indent = true,
+			OmitXmlDeclaration = true
+		});
 
 		XmlSerializer xs = new(typeof(ComputerStructure));
 
-		xs.Serialize(fs, this);
+		xs.Serialize(xw, this);
 	}
 		
 	public static ComputerStructure DeserializeFromFile(string Path)

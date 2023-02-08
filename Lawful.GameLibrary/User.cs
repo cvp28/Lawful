@@ -1,6 +1,8 @@
 ﻿using System.Xml;
 using System.Xml.Serialization;
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Lawful.GameLibrary
 {
 	public class User
@@ -47,12 +49,20 @@ namespace Lawful.GameLibrary
 		[XmlElement("CurrentConnection")]
 		public SessionReference CurrentSessionReference;
 
+		[XmlElement("NETChatAccount")]
+		public NETChatAccount NETChatAccount;
+
+		[XmlElement("Flag")]
+		public List<string> StoryFlags;
+
 		public User()
 		{
 			CurrentSession = new();
 			CurrentSessionReference.PlayerReference = this;
+			StoryFlags = new();
 		}
 
+		[RequiresUnreferencedCode("")]
 		public void SerializeToFile(string Path)
 		{
 			using FileStream fs = new(Path, FileMode.Create);
@@ -61,7 +71,8 @@ namespace Lawful.GameLibrary
 
 			xs.Serialize(fs, this);
 		}
-	
+
+		[RequiresUnreferencedCode("")]
 		public static User DeserializeFromFile(string Path)
 		{
 			if (!File.Exists(Path))

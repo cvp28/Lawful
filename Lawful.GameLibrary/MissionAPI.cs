@@ -2,55 +2,46 @@
 namespace Lawful.GameLibrary;
 
 using static GameSession;
-using static UI.UIManager;
 
 public static class MissionAPI
 {
     public static void LoadMission(string MissionID)
     {
+        Log.WriteLine($"MissionAPI :: Loading mission '{MissionID}'...");
+
         Mission TryMission = CurrentStory.GetMission(MissionID);
 
         if (TryMission is null)
-		{
-			Log.WriteLine($"Could not load mission by ID '{MissionID}'");
-			Log.WriteLine($"'{CurrentStory.Name}' does not contain mission by ID '{MissionID}'");
-		}
+        {
+            Log.WriteLine($"MissionAPI :: Error loading mission - '{CurrentStory.Name}' does not contain mission by ID '{MissionID}'");
+            return;
+        }
+
+        CurrentMission = TryMission;
+
+        if (CurrentMission.HasAssets)
+        {
+            int Elapsed = Util.ExecTimed(delegate ()
+            {
+                CurrentMission.LoadAssets();
+            });
+
+            Log.WriteLine($"MissionAPI :: Loaded mission assets for '{MissionID}' in {Elapsed} ms");
+        }
 
         EventManager.AddMissionEvents(TryMission);
+
+        Log.WriteLine($"MissionAPI :: Finished loading '{MissionID}'");
     }
 
     public static void UnloadCurrentMission()
     {
-        try
-        {
-            EventManager.ClearEvents();
-        }
-        catch (Exception e)
-        {
-            Log.WriteLine("Error unloading the current mission assembly", ConsoleColor.Red, ConsoleColor.Black);
-            Log.WriteLine(e.Message);
-            Log.WriteLine(e.StackTrace);
-            Log.NextLine();
-        }
-    }
+        Log.WriteLine($"MissionAPI :: Unloading mission '{CurrentMission.ID}'");
 
-    //  public static T GetMissionData<T>(string Name)
-    //  {
-    //      Type TryType = CurrentMissionAssembly.GetType($"{MissionAssemblyNamespace}.{MissionAssemblyDataClassName}");
-    //      FieldInfo TryField = TryType.GetRuntimeField(Name);
-    //  
-    //      if (TryType is not null && TryField is not null)
-    //          return (T)TryField.GetValue(0);
-    //      else
-    //          return default;
-    //  }
-    //  
-    //  public static void SetMissionData(string Name, object Value)
-    //  {
-    //      Type TryType = CurrentMissionAssembly.GetType($"{MissionAssemblyNamespace}.{MissionAssemblyDataClassName}");
-    //      FieldInfo TryField = TryType.GetRuntimeField(Name);
-    //  
-    //      if (TryType is not null && TryField is not null)
-    //          TryField.SetValue(null, Value);
-    //  }
+        EventManager.ClearEvents();
+        CurrentMission.Events.Clear();
+        CurrentMission.FreeAssets();
+
+        Log.WriteLine($"MissionAPI :: Finished unloading '{CurrentMission.ID}'");
+    }
 }

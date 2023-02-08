@@ -1,1 +1,11 @@
-﻿<?xml version="1.0" encoding="utf-8"?><User xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" HomePCAddress="117.92.201.6" Username="Konym" StoryID="Lawful" CurrentMissionID="Intro" ProfileName="Konym"><CurrentConnection Address="117.92.201.6" Path="/" User="Konym" /></User>
+<?xml version="1.0" encoding="utf-8"?>
+<User xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" HomePCAddress="117.92.201.6" Username="Konym" StoryID="Lawful" CurrentMissionID="Intro" ProfileName="Konym">
+  <CurrentConnection Address="117.92.201.6" Path="/" User="Konym" />
+  <NETChatAccount Username="Alex">
+    <Contact Username="Jason" Online="false">
+      <Chat>
+        <Message Username="Jason">This is a test message</Message>
+      </Chat>
+    </Contact>
+  </NETChatAccount>
+</User>

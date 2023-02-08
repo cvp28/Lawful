@@ -1,4 +1,5 @@
 ﻿using Haven;
+using System.Diagnostics;
 
 namespace Lawful.GameLibrary;
 
@@ -7,6 +8,8 @@ using static UI.UIManager;
 
 public static class Util
 {
+	public static char[] LoadingAnimFrames = new char[4] { '|', '/', '-', '\\' };
+
 	public static void PrintPrompt()
 	{
 		GameConsole.Write("/ [");
@@ -36,6 +39,18 @@ public static class Util
 	//		Con.WriteLine(text);
 	//		Con.ForegroundColor = initialcolor;
 	//	}
+
+	public static int ExecTimed(Action Action)
+	{
+		var sw = Stopwatch.StartNew();
+		
+		Action();
+		
+		int ElapsedMs = (int) sw.ElapsedMilliseconds;
+		sw.Reset();
+
+		return ElapsedMs;
+	}
 
 	public static void WriteDynamic(this TextBox Con, string text, int delaymiliseconds)
 	{

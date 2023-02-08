@@ -30,7 +30,7 @@ This is a test document
           <File Name="sfs.sys" Perms="root:rw:n" />
         </Directory>
         <Directory Name="bin" Perms="root:elm:el">
-          <File Name="ssh" Command="ssh" Perms="root::rwe:e" />
+          <File Name="ssh" Command="ssh" Perms="root:rwe:e" />
           <File Name="su" Command="su" Perms="root:rwe:e" />
           <File Name="ls" Command="ls" Perms="root:rwe:e" />
           <File Name="cd" Command="cd" Perms="root:rwe:e" />
@@ -106,7 +106,7 @@ Slave Rebellion
           <File Name="sfs.sys" Perms="root:rw:n" />
         </Directory>
 		<Directory Name="bin" Perms="root:elm:el">
-			  <File Name="ssh" Command="ssh" Perms="root::rwe:e" />
+			  <File Name="ssh" Command="ssh" Perms="root:rwe:e" />
 			  <File Name="su" Command="su" Perms="root:rwe:e" />
 			  <File Name="ls" Command="ls" Perms="root:rwe:e" />
 			  <File Name="cd" Command="cd" Perms="root:rwe:e" />

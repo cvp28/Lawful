@@ -1,13 +1,26 @@
 <?xml version="1.0"?>
 <Story xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="Lawful" Start="Intro">
 
+  <NETChatAccount Username="Alex">
+	<Contact Username="Jason" Online="false">
+		<Chat>
+			<Message Username="Jason">This is a test message</Message>
+		</Chat>
+	</Contact>
+	
+  </NETChatAccount>
+
   <Mission Name="Humble Beginnings (Intro)" ID="Intro">
-	<Event Trigger="BootupSequenceStarted" ScriptPath="MissionScripts\Intro\pre_bootup.js" Attrib="fireonce"/>
-	<Event Trigger="BootupSequenceFinished" ScriptPath="MissionScripts\Intro\post_bootup.js" Attrib="fireonce"/>
+	<Event Trigger="BootupSequenceStarted" ScriptPath="MissionScripts\Intro\pre_bootup.js"/>
+	<Event Trigger="BootupSequenceFinished" ScriptPath="MissionScripts\Intro\post_bootup.js"/>
   </Mission>
   
   <Mission Name="Stood Upon the Shoulders of Giants" ID="ShouldersOfGiants">
+	<SFXAsset ID="yes" Path="Audio\yes.wav" Volume="0.2"/>
+	<MusicAsset ID="music" Path="Audio\music.mp3"/>
 	
+	<Event Trigger="CommandEntered" ScriptPath="MissionScripts\ShouldersOfGiants\command_entered.js"/>
+	<Event Trigger="ReadFile" ScriptPath="MissionScripts\ShouldersOfGiants\read_file_trigger_chat_1.js"/>
   </Mission>
   
 </Story>

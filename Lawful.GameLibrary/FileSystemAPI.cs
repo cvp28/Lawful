@@ -1,5 +1,7 @@
 ﻿using System.Xml;
 using System.Text;
+using System.Xml.Linq;
+using Esprima.Ast;
 
 namespace Lawful.GameLibrary;
 
@@ -63,17 +65,25 @@ public static class FSAPI
 					break;
 
 				default:
-					XmlNode TryDirectory = Traverser.SelectSingleNode($"Directory[@Name='{Element}']");
-					XmlNode TryFile = Traverser.SelectSingleNode($"File[@Name='{Element}']");
+					var ChildNodes = Traverser.ChildNodes.Cast<XmlNode>();
+					XmlNode Temp = ChildNodes.FirstOrDefault(node => node.Attributes["Name"].Value == Element);
 
-					if (TryDirectory is not null)
-						Traverser = TryDirectory;
-					else if (TryFile is not null)
-						return TryFile;
+					if (Temp is not null)
+						Traverser = Temp;
 					else
 						return null;
 
 					break;
+
+					//	XmlNode TryDirectory = Traverser.SelectSingleNode($"Directory[@Name='{Element}']");
+					//	XmlNode TryFile = Traverser.SelectSingleNode($"File[@Name='{Element}']");
+
+					//	if (TryDirectory is not null)
+					//		Traverser = TryDirectory;
+					//	else if (TryFile is not null)
+					//		return TryFile;
+					//	else
+					//		return null;
 			}
 		}
 
@@ -259,15 +269,19 @@ public static class FSAPI
 
 		foreach (string Element in QueryElements)
 		{
-			if (Traverser.SelectSingleNode($"File[@Name='{Element}']") is not null)
+			var TraverserChildren = Traverser.ChildNodes.Cast<XmlNode>();
+
+			XmlNode TryDirectory = TraverserChildren.FirstOrDefault(node => node.Name == "Directory" && node.Attributes["Name"].Value == Element);
+			XmlNode TryFile = TraverserChildren.FirstOrDefault(node => node.Name == "File" && node.Attributes["Name"].Value == Element);
+
+			if (TryDirectory is not null)
 			{
-				Traverser = Traverser.SelectSingleNode($"File[@Name='{Element}']");
-				// If we reach a file, then break because you cannot go further after finding a file
-				break;
+				Traverser = TryDirectory;
 			}
-			else if (Traverser.SelectSingleNode($"Directory[@Name='{Element}']") is not null)
+			else if (TryFile is not null)
 			{
-				Traverser = Traverser.SelectSingleNode($"Directory[@Name='{Element}']");
+				Traverser = TryFile;
+				break;
 			}
 			else
 			{

@@ -1,19 +1,37 @@
 ﻿using System.Xml;
 using System.Xml.Serialization;
-
-using Lawful.InputParser;
-using Lawful.GameLibrary.UI;
+using System.Diagnostics.CodeAnalysis;
 
 using Haven;
 using Un4seen.Bass;
 
+using Lawful.InputParser;
+
 namespace Lawful.GameLibrary;
 
-using static UI.UIManager;
 using static GameSession;
+using UI;
 
 public static class GameAPI
 {
+	private static XmlSerializer ConfigSerializer = new(typeof(Config));
+
+	private static List<string> NormalTypewriterStreams;
+	private static Random Rand;
+	public static bool TypewriterInitialized { get; private set; } = false;
+	public static Renderer CurrentRenderer { get; set; }
+
+	public static Delegate EmptyDelegate = delegate () { };
+
+	// Base game configuration that gets auto-generated at runtime
+	public static Config BaseConfig = new()
+	{
+		ShowFPS = false,
+		SelectedRenderer = OperatingSystem.IsWindows() ? Renderer.WindowsNative : Renderer.CrossPlatform,
+		EnableTypewriter = true,
+		TypewriterVolume = 0.2f
+	};
+
 	public static string ToPlatformPath(this string Path)
 	{
 		char PathSeparator = OperatingSystem.IsWindows() ? '\\' : '/';
@@ -88,33 +106,60 @@ public static class GameAPI
 		return ValidSaves.ToArray();
 	}
 
-	private static List<int> NormalKeypressStreams;
-	private static int SpacebarKeypressStream;
-	private static int EnterKeypressStream;
-	private static Random Rand;
+	public static void InitializeBASS()
+	{
+		// Initialize BASS
+		bool BassInit = Bass.BASS_Init(-1, 44100, BASSInit.BASS_DEVICE_DEFAULT, IntPtr.Zero);
+
+		if (!BassInit)
+		{
+			Log.WriteLine($"failed: {Bass.BASS_ErrorGetCode()}");
+			throw new Exception("Failed to initialize BASS");
+		}
+	}
+
+	public static void InitSFX()
+	{
+		MainAudioOut.CreateStream("FriendRequestNotify", @"Content\Audio\SFX\FriendRequestNotify.wav".ToPlatformPath());
+		MainAudioOut.CreateStream("UserOnlineNotify", @"Content\Audio\SFX\UserOnlineNotify.wav".ToPlatformPath());
+		MainAudioOut.CreateStream("UserOfflineNotify", @"Content\Audio\SFX\UserOfflineNotify.wav".ToPlatformPath());
+	}
 
 	public static void InitTypewriter()
 	{
-		NormalKeypressStreams = new();
+		NormalTypewriterStreams = new();
 		Rand = new(DateTime.Now.Millisecond);
 
-		NormalKeypressStreams.Add(AudioManager.CreateStream("TypewriterN1", @"Content\Audio\Typewriter\N1.wav".ToPlatformPath()));
-		NormalKeypressStreams.Add(AudioManager.CreateStream("TypewriterN2", @"Content\Audio\Typewriter\N2.wav".ToPlatformPath()));
-		NormalKeypressStreams.Add(AudioManager.CreateStream("TypewriterN3", @"Content\Audio\Typewriter\N3.wav".ToPlatformPath()));
-		NormalKeypressStreams.Add(AudioManager.CreateStream("TypewriterN4", @"Content\Audio\Typewriter\N4.wav".ToPlatformPath()));
-		NormalKeypressStreams.Add(AudioManager.CreateStream("TypewriterN5", @"Content\Audio\Typewriter\N5.wav".ToPlatformPath()));
+		NormalTypewriterStreams.Add("TypewriterN1");
+		NormalTypewriterStreams.Add("TypewriterN2");
+		NormalTypewriterStreams.Add("TypewriterN3");
+		NormalTypewriterStreams.Add("TypewriterN4");
+		NormalTypewriterStreams.Add("TypewriterN5");
 
-		EnterKeypressStream = AudioManager.CreateStream("TypewriterEnter", @"Content\Audio\Typewriter\Enter.wav".ToPlatformPath());
-		SpacebarKeypressStream = AudioManager.CreateStream("TypewriterSpacebar", @"Content\Audio\Typewriter\Spacebar.wav".ToPlatformPath());
+		MainAudioOut.CreateStream("TypewriterN1", @"Content\Audio\Typewriter\N1.wav".ToPlatformPath());
+		MainAudioOut.CreateStream("TypewriterN2", @"Content\Audio\Typewriter\N2.wav".ToPlatformPath());
+		MainAudioOut.CreateStream("TypewriterN3", @"Content\Audio\Typewriter\N3.wav".ToPlatformPath());
+		MainAudioOut.CreateStream("TypewriterN4", @"Content\Audio\Typewriter\N4.wav".ToPlatformPath());
+		MainAudioOut.CreateStream("TypewriterN5", @"Content\Audio\Typewriter\N5.wav".ToPlatformPath());
 
-		foreach (int Stream in NormalKeypressStreams)
-			Bass.BASS_ChannelSetAttribute(Stream, BASSAttribute.BASS_ATTRIB_VOL, GameOptions.TypewriterVolume);
+		MainAudioOut.CreateStream("TypewriterEnter", @"Content\Audio\Typewriter\Enter.wav".ToPlatformPath());
+		MainAudioOut.CreateStream("TypewriterSpacebar", @"Content\Audio\Typewriter\Spacebar.wav".ToPlatformPath());
 
-		Bass.BASS_ChannelSetAttribute(EnterKeypressStream, BASSAttribute.BASS_ATTRIB_VOL, GameOptions.TypewriterVolume);
-		Bass.BASS_ChannelSetAttribute(SpacebarKeypressStream, BASSAttribute.BASS_ATTRIB_VOL, GameOptions.TypewriterVolume);
+		UpdateTypewriterVolume();
 
 		DoTypewriter = true;
-		Engine.AddUpdateTask("Typewriter", TypewriterTask);
+		App.AddUpdateTask("Typewriter", TypewriterTask);
+
+		TypewriterInitialized = true;
+	}
+
+	public static void UpdateTypewriterVolume()
+	{
+		foreach (string Stream in NormalTypewriterStreams)
+			MainAudioOut.SetVolume(Stream, CurrentConfig.TypewriterVolume);
+
+		MainAudioOut.SetVolume("TypewriterEnter", CurrentConfig.TypewriterVolume);
+		MainAudioOut.SetVolume("TypewriterSpacebar", CurrentConfig.TypewriterVolume);
 	}
 
 	public static void TypewriterTask(State s)
@@ -125,30 +170,73 @@ public static class GameAPI
 		switch (s.KeyInfo.Key)
 		{
 			case ConsoleKey.Spacebar:
-				Bass.BASS_ChannelPlay(SpacebarKeypressStream, true);
+				MainAudioOut.Play("TypewriterSpacebar", true);
 				break;
 
 			case ConsoleKey.Enter:
-				Bass.BASS_ChannelPlay(EnterKeypressStream, true);
+				MainAudioOut.Play("TypewriterEnter", true);
 				break;
 
 			default:
-				int Stream = NormalKeypressStreams[Rand.Next(NormalKeypressStreams.Count)];
-				Bass.BASS_ChannelPlay(Stream, true);
+				string Stream = NormalTypewriterStreams[Rand.Next(NormalTypewriterStreams.Count)];
+				MainAudioOut.Play(Stream, true);
 				break;
 		}
+	}
+
+	public static void WriteBaseConfig()
+	{
+		using (var stream = XmlWriter.Create("runtimeconfig.xml", new XmlWriterSettings() { Indent = true, OmitXmlDeclaration = true }))
+			ConfigSerializer.Serialize(stream, BaseConfig);
+	}
+
+	public static void WriteCurrentConfig()
+	{
+		using (var stream = XmlWriter.Create("runtimeconfig.xml", new XmlWriterSettings() { Indent = true, OmitXmlDeclaration = true }))
+			ConfigSerializer.Serialize(stream, CurrentConfig);
+	}
+
+	public static bool TryDeserializeConfig(out Config cfg)
+	{
+		using (var stream = File.OpenRead("runtimeconfig.xml"))
+		{
+			cfg = ConfigSerializer.Deserialize(stream) as Config;
+
+			//	try
+			//	{
+			//	}
+			//	catch (Exception)
+			//	{
+			//		goto fail;
+			//	}
+
+			if (cfg.TypewriterVolume < 0.0 || cfg.TypewriterVolume >= 1.0)
+				goto fail;
+		}
+
+		return true;
+
+	fail:
+		cfg = BaseConfig;
+		return false;
 	}
 
 	public static void CommenceBootupTask()
 	{
 		if (SkipBootupSequence)
 		{
-			Current = Sections.Game;
+			App.GetLayer<NotifyLayer>().StartNotifyThread();
+
+			App.SetLayer(0, "Game", true);
+			App.SetLayer(1, "Notify");
 			return;
 		}
 
+		var BootupConsole = App.GetLayer<BootupLayer>().BootupConsole;
+
 		Task.Run(delegate ()
 		{
+			DoTypewriter = false;
 			BootupConsole.CursorVisible = false;
 			BootupConsole.Clear();
 
@@ -172,7 +260,7 @@ public static class GameAPI
 			Thread.Sleep(500);
 
 			BootupConsole.Write("Building device list... ");
-			BootupConsole.BeginCharacterAnimation(new char[8] { '|', '/', '-', '\\', '|', '/', '-', '\\' }, 16, 16, 50, BootupConsole.GetCursorPosition());
+			BootupConsole.BeginCharacterAnimation(Util.LoadingAnimFrames, 16, 16, 50, BootupConsole.GetCursorPosition());
 			BootupConsole.WriteLine("OK", ConsoleColor.Green, ConsoleColor.Black);
 			Thread.Sleep(250);
 
@@ -181,22 +269,22 @@ public static class GameAPI
 
 			Thread.Sleep(50);
 			BootupConsole.Write("                ");
-			BootupConsole.BeginCharacterAnimation(new char[8] { '|', '/', '-', '\\', '|', '/', '-', '\\' }, 6, 6, 50, BootupConsole.GetCursorPosition());
+			BootupConsole.BeginCharacterAnimation(Util.LoadingAnimFrames, 6, 6, 50, BootupConsole.GetCursorPosition());
 			BootupConsole.WriteLine("ID                : 0x01", ConsoleColor.Yellow, ConsoleColor.Black);
 
 			Thread.Sleep(50);
 			BootupConsole.Write("                ");
-			BootupConsole.BeginCharacterAnimation(new char[8] { '|', '/', '-', '\\', '|', '/', '-', '\\' }, 6, 6, 50, BootupConsole.GetCursorPosition());
+			BootupConsole.BeginCharacterAnimation(Util.LoadingAnimFrames, 6, 6, 50, BootupConsole.GetCursorPosition());
 			BootupConsole.WriteLine("Type              : Mechanical", ConsoleColor.Yellow, ConsoleColor.Black);
 
 			Thread.Sleep(50);
 			BootupConsole.Write("                ");
-			BootupConsole.BeginCharacterAnimation(new char[8] { '|', '/', '-', '\\', '|', '/', '-', '\\' }, 6, 6, 50, BootupConsole.GetCursorPosition());
+			BootupConsole.BeginCharacterAnimation(Util.LoadingAnimFrames, 6, 6, 50, BootupConsole.GetCursorPosition());
 			BootupConsole.WriteLine("Vendor            : Toshiba", ConsoleColor.Yellow, ConsoleColor.Black);
 
 			Thread.Sleep(50);
 			BootupConsole.Write("                ");
-			BootupConsole.BeginCharacterAnimation(new char[8] { '|', '/', '-', '\\', '|', '/', '-', '\\' }, 6, 6, 50, BootupConsole.GetCursorPosition());
+			BootupConsole.BeginCharacterAnimation(Util.LoadingAnimFrames, 6, 6, 50, BootupConsole.GetCursorPosition());
 			BootupConsole.WriteLine("Reported Capacity : 2 TB (2,199,023,255,552 bytes)", ConsoleColor.Yellow, ConsoleColor.Black);
 
 			Thread.Sleep(500);
@@ -207,22 +295,22 @@ public static class GameAPI
 
 			Thread.Sleep(50);
 			BootupConsole.Write("                ");
-			BootupConsole.BeginCharacterAnimation(new char[8] { '|', '/', '-', '\\', '|', '/', '-', '\\' }, 6, 6, 50, BootupConsole.GetCursorPosition());
+			BootupConsole.BeginCharacterAnimation(Util.LoadingAnimFrames, 6, 6, 50, BootupConsole.GetCursorPosition());
 			BootupConsole.WriteLine("ID                : 0x02", ConsoleColor.Yellow, ConsoleColor.Black);
 
 			Thread.Sleep(50);
 			BootupConsole.Write("                ");
-			BootupConsole.BeginCharacterAnimation(new char[8] { '|', '/', '-', '\\', '|', '/', '-', '\\' }, 6, 6, 50, BootupConsole.GetCursorPosition());
+			BootupConsole.BeginCharacterAnimation(Util.LoadingAnimFrames, 6, 6, 50, BootupConsole.GetCursorPosition());
 			BootupConsole.WriteLine("Type              : SSD", ConsoleColor.Yellow, ConsoleColor.Black);
 
 			Thread.Sleep(50);
 			BootupConsole.Write("                ");
-			BootupConsole.BeginCharacterAnimation(new char[8] { '|', '/', '-', '\\', '|', '/', '-', '\\' }, 6, 6, 50, BootupConsole.GetCursorPosition());
+			BootupConsole.BeginCharacterAnimation(Util.LoadingAnimFrames, 6, 6, 50, BootupConsole.GetCursorPosition());
 			BootupConsole.WriteLine("Vendor            : Samsung", ConsoleColor.Yellow, ConsoleColor.Black);
 
 			Thread.Sleep(50);
 			BootupConsole.Write("                ");
-			BootupConsole.BeginCharacterAnimation(new char[8] { '|', '/', '-', '\\', '|', '/', '-', '\\' }, 6, 6, 50, BootupConsole.GetCursorPosition());
+			BootupConsole.BeginCharacterAnimation(Util.LoadingAnimFrames, 6, 6, 50, BootupConsole.GetCursorPosition());
 			BootupConsole.WriteLine("Reported Capacity : 500 GB (536,870,912,000 bytes)", ConsoleColor.Yellow, ConsoleColor.Black);
 
 			Thread.Sleep(250);
@@ -321,7 +409,7 @@ public static class GameAPI
 
 			BootupConsole.Write("[kcon]::AllocateConsole : Allocating console... ");
 
-			BootupConsole.BeginCharacterAnimation(new char[8] { '|', '/', '-', '\\', '|', '/', '-', '\\' }, 16, 48, 50, BootupConsole.GetCursorPosition());
+			BootupConsole.BeginCharacterAnimation(Util.LoadingAnimFrames, 16, 48, 50, BootupConsole.GetCursorPosition());
 
 			BootupConsole.CursorVisible = false;
 
@@ -339,8 +427,12 @@ public static class GameAPI
 			EventManager.HandleEventsByTrigger(Trigger.BootupSequenceFinished);
 
 			BootupConsole.CursorVisible = true;
+			DoTypewriter = true;
 
-			Current = Sections.Game;
+			App.GetLayer<NotifyLayer>().StartNotifyThread();
+
+			App.SetLayer(0, "Game", true);
+			App.SetLayer(1, "Notify");
 		});
 
 	}
@@ -354,10 +446,20 @@ public static class GameAPI
 		if (Query.Command.Length == 0)
 			return;
 
+		// Built-in commands
 		switch (Query.Command.ToUpper())
 		{
 			case "EXIT":
-				Current = Sections.MainMenu;
+				App.GetLayer<NotifyLayer>().StopNotifyThread();
+
+				App.SetLayer(1);
+				App.SetLayer(0, "MainMenu");
+				
+				MissionAPI.UnloadCurrentMission();
+				SaveAPI.UnloadCurrentSave();
+
+				GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, true, true);
+
 				return;
 
 			case "QUERY":
@@ -382,6 +484,14 @@ public static class GameAPI
 
 			case "CLEAR":
 				GameConsole.Clear();
+				return;
+
+			case "DC":
+				if (Player.CurrentSession.Host == Player.HomePC)
+					return;
+
+				Player.HomePC.TryOpenSession(Player.ProfileName, out Player.CurrentSession);
+				EventManager.HandleEventsByTrigger(Trigger.SSHDisconnect);
 				return;
 
 			case "UITEST":
@@ -423,6 +533,105 @@ public static class GameAPI
 				return;
 		}
 
+		XmlNode TryExecuteBin = Player.CurrentSession.Host.GetNodeFromPath($"bin/{Query.Command}");
+		XmlNode TryExecuteLocal = FSAPI.LocateFile(Player.CurrentSession, Query.Command);
+		XmlNode TryExecute;
+
+		if (TryExecuteBin is not null)
+		{
+			TryExecute = TryExecuteBin;
+			goto ExecuteCommand;
+		}
+
+		if (TryExecuteLocal is not null)
+		{
+			TryExecute = TryExecuteLocal;
+			goto ExecuteCommand;
+		}
+
+		GameConsole.WriteLine($"File not found '/bin/{Query.Command}' and './{Query.Command}'");
 		return;
+
+	ExecuteCommand:
+
+		if (!FSAPI.UserHasFilePermissions(Player.CurrentSession, TryExecute, FilePermission.Execute))
+		{
+			GameConsole.WriteLine($"Execute permission denied for '{TryExecute.GetPath()}'");
+			return;
+		}
+
+		if (TryExecute.Attributes["Command"] is null)
+		{
+			GameConsole.WriteLine($"File is not an executable '{TryExecute.GetPath()}'");
+			return;
+		}
+
+		string Command = TryExecute.Attributes["Command"].Value.ToUpper();
+
+		switch (Command.ToUpper())
+		{
+			case "SUS":
+				if (Query.Flags.Contains("help"))
+					SusCommand.Help();
+				else
+					SusCommand.Invoke(Query);
+				break;
+
+			case "LS":
+				if (Query.Flags.Contains("help"))
+					ListCommand.Help();
+				else
+					ListCommand.Invoke(Query);
+				break;
+
+			case "CD":
+				if (Query.Flags.Contains("help"))
+					ChangeDirectoryCommand.Help();
+				else
+					ChangeDirectoryCommand.Invoke(Query);
+				break;
+
+			case "CAT":
+				if (Query.Flags.Contains("help"))
+					ConcatenateCommand.Help();
+				else
+					ConcatenateCommand.Invoke(Query);
+				break;
+
+			case "MKDIR":
+				if (Query.Flags.Contains("help"))
+					MakeDirectoryCommand.Help();
+				else
+					MakeDirectoryCommand.Invoke(Query);
+				break;
+
+			case "RM":
+				if (Query.Flags.Contains("help"))
+					RemoveCommand.Help();
+				else
+					RemoveCommand.Invoke(Query);
+				break;
+
+			case "SU":
+				if (Query.Flags.Contains("help"))
+					SwitchUserCommand.Help();
+				else
+					SwitchUserCommand.Invoke(Query);
+				break;
+
+			case "SSH":
+				if (Query.Flags.Contains("help"))
+					SSHCommand.Help();
+				else
+					SSHCommand.Invoke(Query);
+				break;
+
+			case "MV":
+				if (Query.Flags.Contains("help"))
+					MoveCommand.Help();
+				else
+					MoveCommand.Invoke(Query);
+				break;
+		}
 	}
 }

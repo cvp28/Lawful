@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<ChatSequence User="Jason">
+	
+	<AddMessage Username="Jason">This is a test message</AddMessage>
+	
+	<DelayMs Value="2000"/>
+	
+	<AddMessage Username="Jason">This is another test message 2 seconds later</AddMessage>
+	
+	<DelayMs Value="1000"/>
+	
+	<AwaitResponse>
+		<Choice1>
+			<SetText>This is response choice 1</SetText>
+			<SetFlag>sog_1_rc1</SetFlag>
+		</Choice1>
+		
+		<Choice2>
+			<SetText>This is response choice 2</SetText>
+			<SetFlag>sog_1_rc2</SetFlag>
+		</Choice2>
+		
+		<Choice3>
+			<SetText>This is response choice 3</SetText>
+			<SetFlag>sog_1_rc3</SetFlag>
+		</Choice3>
+	</AwaitResponse>
+	
+</ChatSequence>

@@ -17,7 +17,7 @@ public enum RSIStatus
 // A class that deals with handing remote systems
 public static class Remote
 {
-	// Function determines if a query validly addresses a remote system and, regardless, returns all the discernable elements of that query using the out strings
+	// Function determines if a query validly addresses a remote system and, regardless, returns all the discernable elements of that query using the out parameters
 	public static RSIStatus TryGetRSI(string Query, out UserAccount User, out Computer Host, out string Path)
 	{
 		if (!Query.Contains(':') || !Query.Contains('@'))

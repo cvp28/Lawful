@@ -1,20 +1,35 @@
-﻿//#define VS
+﻿#define VS
 
+using System.Diagnostics.CodeAnalysis;
 using System.Xml;
+using System.Xml.Serialization;
 
 using Haven;
-
+using Jint;
 using Lawful.GameLibrary;
 using Lawful.GameLibrary.UI;
 
 namespace Lawful;
 
-
-
 public class Lawful
 {
 	static void Main()
 	{
+
+		//	Chat chat = new() { OtherUsername = "Jason" };
+		//	
+		//	chat.History.Add(new ChatMessage("Jason", "Hey, what's up?"));
+		//	chat.History.Add(new ChatMessage("Alex", "Not much, just afkgadkfsjgaskjfhggkhjfasdajghsdaf"));
+		//	
+		//	NETChatAccount acc = new();
+		//	acc.Username = "Alex";
+		//	acc.ChatHistory.Add(chat);
+		//	
+		//	XmlSerializer xs = new(typeof(NETChatAccount));
+		//	XmlWriter xw = XmlWriter.Create(File.OpenWrite("netchataccount.xml"), new() { Indent = true, OmitXmlDeclaration = true });
+		//	
+		//	xs.Serialize(xw, acc);
+
 		Console.ReadKey(true);
 
 #if VS
@@ -23,49 +38,81 @@ public class Lawful
 		string Root = Directory.GetCurrentDirectory();
 #endif
 
+		int ProcessRCElapsed = 0;
+		int InitializeEngineElapsed = 0;
+		int InitializeUIElapsed = 0;
+		int InitializeBASSElapsed = 0;
+
+		//GameSession.SkipBootupSequence = true;
+
 		Directory.SetCurrentDirectory(Root);
 
-		if (File.Exists(@"runtimeconfig.xml"))
-			ProcessRuntimeConfig();
+		// Process runtimeconfig.xml
+		if (!File.Exists("runtimeconfig.xml"))
+		{
+			Console.Write("Config not found, writing base config... ");
+			GameAPI.WriteBaseConfig();
+			Console.WriteLine("done.");
+		}
 
-		if (OperatingSystem.IsWindows() && !GameOptions.ForceCSRenderer)
-			Engine.Initialize<NativeScreen>();
-		else
-			Engine.Initialize<Screen>();
+		Console.Write("Processing runtimeconfig.xml... ");
+		ProcessRCElapsed = Util.ExecTimed(delegate ()
+		{
+			if (!GameAPI.TryDeserializeConfig(out GameSession.CurrentConfig))
+			{
+				Console.Write("error reading config, writing base config... ");
+				GameAPI.WriteBaseConfig();
+			}
+		});
+		Console.WriteLine("done.");
 
-		// Create UI
-		UIManager.Initialize();
-		UIManager.Current = Sections.MainMenu;
+		// Initialize Haven
+		Console.Write("Initializing Haven... ");
+		InitializeEngineElapsed = Util.ExecTimed(delegate ()
+		{
+			switch (GameSession.CurrentConfig.SelectedRenderer)
+			{
+				case GameLibrary.Renderer.WindowsNative:
+					GameSession.App = App.Create<WindowsNativeRenderer>(4);
+					GameAPI.CurrentRenderer = GameLibrary.Renderer.WindowsNative;
+					break;
 
-		Directory.SetCurrentDirectory(@"bin64");
-		AudioManager.Initialize();
-		Directory.SetCurrentDirectory(Root);
+				case GameLibrary.Renderer.CrossPlatform:
+					GameSession.App = App.Create<ConWriteRenderer>(4);
+					GameAPI.CurrentRenderer = GameLibrary.Renderer.CrossPlatform;
+					break;
+			}
+		});
+		Console.WriteLine("done.");
 
-		if (GameOptions.EnableTypewriter)
+		// Initialize UI
+		Console.Write("Initializing UI... ");
+		InitializeUIElapsed = Util.ExecTimed(UIManager.Initialize);
+		Console.WriteLine("done.");
+
+		// Initialize BASS
+		Console.Write("Initializing BASS... ");
+		InitializeBASSElapsed = Util.ExecTimed(GameAPI.InitializeBASS);
+		Console.WriteLine("done.");
+
+		// Create Main AudioManager
+		GameSession.MainAudioOut = new();
+
+		if (GameSession.CurrentConfig.EnableTypewriter)
 			GameAPI.InitTypewriter();
 
-		UIManager.Log.WriteLine("Running engine now...");
+		GameAPI.InitSFX();
+
+		GameSession.Log.WriteLine($"Lawful :: Process runtimeconfig.xml took {ProcessRCElapsed} ms");
+		GameSession.Log.WriteLine($"Lawful :: Initialize Haven took {InitializeEngineElapsed} ms");
+		GameSession.Log.WriteLine($"Lawful :: Initialize UI took {InitializeUIElapsed} ms");
+		GameSession.Log.WriteLine($"Lawful :: Initialize BASS took {InitializeBASSElapsed} ms");
+		
+		GameSession.Log.WriteLine("Lawful :: Running Haven now...");
 
 		// Run Engine
-		Engine.Run();
+		GameSession.App.Run();
 
-		AudioManager.FreeAll();
-	}
-
-	static void ProcessRuntimeConfig()
-	{
-		XmlDocument RuntimeConfigDoc = new();
-		RuntimeConfigDoc.Load(@"runtimeconfig.xml");
-
-		GameOptions.ForceCSRenderer = RuntimeConfigDoc.SelectSingleNode("Config/ForceCSRenderer") is not null;
-		GameOptions.ShowFPS = RuntimeConfigDoc.SelectSingleNode("Config/ShowFPS") is not null;
-		GameOptions.EnableTypewriter =  RuntimeConfigDoc.SelectSingleNode("Config/EnableTypewriter") is not null;
-
-		string TypewriterVolumeNodeValue = RuntimeConfigDoc.SelectSingleNode("Config/TypewriterVolume")?.Attributes["value"]?.Value.ToLower();
-
-		bool SetDefaultVolume = TypewriterVolumeNodeValue is null || !float.TryParse(TypewriterVolumeNodeValue, out GameOptions.TypewriterVolume);
-
-		if (SetDefaultVolume)
-			GameOptions.TypewriterVolume = 0.2f;
+		GameSession.MainAudioOut.FreeAll();
 	}
 }

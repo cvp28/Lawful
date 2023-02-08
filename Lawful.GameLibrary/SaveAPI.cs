@@ -1,7 +1,8 @@
-﻿namespace Lawful.GameLibrary;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Lawful.GameLibrary;
 
 using static GameSession;
-using static UI.UIManager;
 
 public static class SaveAPI
 {
@@ -17,7 +18,8 @@ public static class SaveAPI
 		{
 			ProfileName = UserProfileName,
 			StoryID = UserStorySelection,
-			CurrentMissionID = UserStory.StartMissionID
+			CurrentMissionID = UserStory.StartMissionID,
+			NETChatAccount = UserStory.DefaultNETChatAccount
 		};
 
 		// Define our path to the new user's save folder
@@ -56,7 +58,7 @@ public static class SaveAPI
 		}
 		catch (Exception e)
 		{
-			Log.WriteLine("Caught exception while writing save data", ConsoleColor.Red, ConsoleColor.Black);
+			Log.WriteLine("SaveAPI :: Caught exception while writing save data", ConsoleColor.Red, ConsoleColor.Black);
 			Log.WriteLine(e.Message);
 			Log.WriteLine(e.StackTrace);
 			Log.NextLine();
@@ -65,7 +67,7 @@ public static class SaveAPI
 		}
 	}
 
-	public static void LoadGameFromSave(string PathToSave)
+	public static bool LoadGameFromSave(string PathToSave)
 	{
 		// Initialize game objects
 		try
@@ -79,7 +81,7 @@ public static class SaveAPI
 		}
 		catch (Exception e)
 		{
-			Log.WriteLine($"Error loading save '{PathToSave}'", ConsoleColor.Red, ConsoleColor.Black);
+			Log.WriteLine($"SaveAPI :: Error loading save '{PathToSave}'", ConsoleColor.Red, ConsoleColor.Black);
 			Log.WriteLine(e.Message);
 			Log.WriteLine(e.StackTrace);
 			Log.NextLine();
@@ -88,7 +90,7 @@ public static class SaveAPI
 			CurrentStory = null;
 			CurrentMission = null;
 			Computers = null;
-			return;
+			return false;
 		}
 
 		// Initialize some connection-related values given the computer structure for this save
@@ -101,5 +103,19 @@ public static class SaveAPI
 
 		// Load current mission
 		MissionAPI.LoadMission(Player.CurrentMissionID);
+
+		return true;
+	}
+
+	public static void UnloadCurrentSave()
+	{
+		Player.CloseCurrentSession();
+		Player = null;
+
+		CurrentStory.Missions.Clear();
+		CurrentStory = null;
+
+		Computers.Computers.Clear();
+		Computers = null;
 	}
 }

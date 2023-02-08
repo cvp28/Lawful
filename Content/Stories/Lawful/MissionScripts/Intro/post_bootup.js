@@ -3,3 +3,4 @@ Sleep(750);
 BootupConsole.Clear();
 BootupConsole.CursorVisible = true;
 Sleep(1000);
+ChangeMission("ShouldersOfGiants");

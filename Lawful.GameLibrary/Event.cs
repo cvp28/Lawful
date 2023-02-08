@@ -41,7 +41,7 @@ public class Event
 	{
 		get
 		{
-			string PathToScript = $"{CurrentStoryRoot}\\{ScriptPath}";
+			string PathToScript = $"{CurrentStoryRoot}\\{ScriptPath}".ToPlatformPath();
 
 			if (!File.Exists(PathToScript))
 				return string.Empty;
@@ -49,7 +49,4 @@ public class Event
 				return File.ReadAllText(PathToScript);
 		}
 	}
-
-	[XmlAttribute("Attrib")]
-	public string Attributes { get; set; }
 }
