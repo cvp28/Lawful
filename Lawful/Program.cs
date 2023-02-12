@@ -1,4 +1,4 @@
-﻿#define VS
+﻿//#define VS
 
 using System.Diagnostics.CodeAnalysis;
 using System.Xml;

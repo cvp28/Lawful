@@ -12,7 +12,7 @@ public class LogLayer : Layer
 		Log.SetLogFile(@".\game_log.txt");
 
 		Log.WriteLine("Lawful");
-		Log.WriteLine("Dev Build - Dec. 2022");
+		Log.WriteLine("Dev Build - Feb. 2023");
 		Log.NextLine();
 
 		AddWidgetsInternal();
