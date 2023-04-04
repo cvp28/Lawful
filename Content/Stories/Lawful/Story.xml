@@ -23,4 +23,8 @@
 	<Event Trigger="ReadFile" ScriptPath="MissionScripts\ShouldersOfGiants\read_file_trigger_chat_1.js"/>
   </Mission>
   
+  <Mission Name="Hack the thing!" ID="HackTheThing">
+	<MusicAsset ID="main_track" Path="Audio\NoiseCanceller.mp3"/>
+  </Mission>
+  
 </Story>

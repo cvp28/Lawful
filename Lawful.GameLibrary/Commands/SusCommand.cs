@@ -3,7 +3,6 @@
 namespace Lawful.GameLibrary;
 
 using static GameSession;
-using static UI.UIManager;
 
 public static class SusCommand
 {

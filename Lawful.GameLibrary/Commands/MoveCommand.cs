@@ -12,7 +12,7 @@ public static class MoveCommand
 	public static void Help()
 	{
 		GameConsole.WriteLine("File System Object Mover Utility v1.0", ConsoleColor.Yellow, ConsoleColor.Black);
-		GameConsole.NextLine();
+		GameConsole.WriteLine();
 		GameConsole.WriteLine(
 			"USAGE: mv [origin] [destination]\n" +
 			"\n" +
@@ -43,11 +43,17 @@ public static class MoveCommand
 			return;
 		}
 
-		if (Destination == Origin)
+		if (Destination.Equals(Origin))
 		{
 			GameConsole.WriteLine("Origin and Destination cannot be the same");
 			return;
 		}
+
+		//	if (Destination == Origin)
+		//	{
+		//		GameConsole.WriteLine("Origin and Destination cannot be the same");
+		//		return;
+		//	}
 
 		// Both origin and destination need to have MODIFY permissions for the current user
 		bool DestinationHasModifyPerms = FSAPI.UserHasDirectoryPermissions(Player.CurrentSession, Destination, DirectoryPermission.Modify);
@@ -73,7 +79,7 @@ public static class MoveCommand
 			case XmlNodeList nl:
 				int count = nl.Count;
 
-				for (int i = 0; i < count; i++)
+				for (int i = count - 1; i >= 0; i--)
 				{
 					XmlNode CurrentParent = nl[i].ParentNode;
 					if (!FSAPI.UserHasDirectoryPermissions(Player.CurrentSession, CurrentParent, DirectoryPermission.Modify))

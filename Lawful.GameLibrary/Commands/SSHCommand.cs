@@ -14,7 +14,7 @@ public static class SSHCommand
 	public static void Help()
 	{
 		GameConsole.WriteLine("SSH Utility v1.0", ConsoleColor.Yellow, ConsoleColor.Black);
-		GameConsole.NextLine();
+		GameConsole.WriteLine();
 		GameConsole.WriteLine(
 			"USAGE: ssh [username]@[hostname] [password]\n" +
 			"\n" +

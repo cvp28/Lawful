@@ -7,8 +7,8 @@ namespace Lawful.GameLibrary;
 public static class GameSession
 {
 	public static App App;
-	public static TextBox Log;
-	public static TextBox GameConsole;
+	public static ScrollableTextBox Log;
+	public static ScrollableTextBox GameConsole;
 
 	public static AudioManager MainAudioOut;
 

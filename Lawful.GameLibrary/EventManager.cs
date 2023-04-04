@@ -153,6 +153,9 @@ public static class EventManager
 			App.GetLayer<NotifyLayer>().PushNotification($"{Username} is now online", "UserOnlineNotify", delegate()
 			{
 				TryContact.Online = true;
+
+				if (App.IsLayerVisible("NETChat"))
+					App.GetLayer<NETChatLayer>().UpdateLists();
 			});
 		});
 
@@ -170,11 +173,20 @@ public static class EventManager
 			App.GetLayer<NotifyLayer>().PushNotification($"{Username} is now offline", "UserOfflineNotify", delegate()
 			{
 				TryContact.Online = false;
+
+				if (App.IsLayerVisible("NETChat"))
+					App.GetLayer<NETChatLayer>().UpdateLists();
 			});
 		});
 
 		JSE.SetValue("DoFriendRequest", delegate (string Username)
 		{
+			if (Player.NETChatAccount.Contacts.FirstOrDefault(fr => fr.Username == Username) is not null)
+			{
+				Log.WriteLine($"EventManager :: A script called 'DoFriendRequest' but a contact for '{Username}' already exists");
+				return;
+			}
+
 			if (Player.NETChatAccount.PendingFriendRequests.FirstOrDefault(fr => fr == Username) is not null)
 			{
 				Log.WriteLine($"EventManager :: A script called 'DoFriendRequest' but a request for '{Username}' was already pending");
@@ -184,10 +196,20 @@ public static class EventManager
 			App.GetLayer<NotifyLayer>().PushNotification($"New friend request from {Username}!\n\nPress F2 for details", "FriendRequestNotify", delegate ()
 			{
 				Player.NETChatAccount.PendingFriendRequests.Add(Username);
+
+				if (App.IsLayerVisible("NETChat"))
+					App.GetLayer<NETChatLayer>().UpdateLists();
 			});
 		});
 
 		JSE.SetValue("RemoveMe", delegate () { RemoveCurrentEvent = true; });
+
+		JSE.SetValue("AddEvent", delegate (Trigger t, string ScriptPath)
+		{
+			CurrentMission.Events.Add(new() { Trigger = t, ScriptPath = ScriptPath });
+		});
+
+		JSE.SetValue("Trigger", typeof(Trigger));
 	}
 
 	public static void AddEvent(Event e)

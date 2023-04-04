@@ -12,7 +12,7 @@ public static class RemoveCommand
 	public static void Help()
 	{
 		GameConsole.WriteLine("File System Object Deletion Utility v1.0", ConsoleColor.Yellow, ConsoleColor.Black);
-		GameConsole.NextLine();
+		GameConsole.WriteLine();
 		GameConsole.WriteLine(
 			"USAGE: rm [path]\n" +
 			"\n" +

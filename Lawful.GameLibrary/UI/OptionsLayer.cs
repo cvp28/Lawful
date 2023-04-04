@@ -88,10 +88,10 @@ public class OptionsLayer : Layer
 
 	private void SetCrossPlatformRenderer()
 	{
-		CurrentConfig.SelectedRenderer = Renderer.CrossPlatform;
+		CurrentConfig.SelectedRenderer = RendererType.CrossPlatform;
 		GameAPI.WriteCurrentConfig();
 
-		if (Renderer.CrossPlatform != GameAPI.CurrentRenderer)
+		if (RendererType.CrossPlatform != GameAPI.CurrentRenderer)
 			OptionsMenu[2].Text = $"Selected Renderer  : {CurrentConfig.SelectedRenderer} - restart needed";
 		else
 			OptionsMenu[2].Text = $"Selected Renderer  : {CurrentConfig.SelectedRenderer}";
@@ -105,10 +105,10 @@ public class OptionsLayer : Layer
 
 	private void SetWindowsNativeRenderer()
 	{
-		CurrentConfig.SelectedRenderer = Renderer.WindowsNative;
+		CurrentConfig.SelectedRenderer = RendererType.WindowsNative;
 		GameAPI.WriteCurrentConfig();
 
-		if (Renderer.WindowsNative != GameAPI.CurrentRenderer)
+		if (RendererType.WindowsNative != GameAPI.CurrentRenderer)
 			OptionsMenu[2].Text = $"Selected Renderer  : {CurrentConfig.SelectedRenderer} - restart needed";
 		else
 			OptionsMenu[2].Text = $"Selected Renderer  : {CurrentConfig.SelectedRenderer}";

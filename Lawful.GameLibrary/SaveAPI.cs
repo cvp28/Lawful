@@ -61,7 +61,7 @@ public static class SaveAPI
 			Log.WriteLine("SaveAPI :: Caught exception while writing save data", ConsoleColor.Red, ConsoleColor.Black);
 			Log.WriteLine(e.Message);
 			Log.WriteLine(e.StackTrace);
-			Log.NextLine();
+			Log.WriteLine();
 
 			return (false, null);
 		}
@@ -84,7 +84,7 @@ public static class SaveAPI
 			Log.WriteLine($"SaveAPI :: Error loading save '{PathToSave}'", ConsoleColor.Red, ConsoleColor.Black);
 			Log.WriteLine(e.Message);
 			Log.WriteLine(e.StackTrace);
-			Log.NextLine();
+			Log.WriteLine();
 
 			Player = null;
 			CurrentStory = null;

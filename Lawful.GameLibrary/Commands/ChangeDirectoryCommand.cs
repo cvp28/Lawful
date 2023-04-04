@@ -12,7 +12,7 @@ public static class ChangeDirectoryCommand
 	public static void Help()
 	{
 		GameConsole.WriteLine("Change Directory Utility v1.0", ConsoleColor.Yellow, ConsoleColor.Black);
-		GameConsole.NextLine();
+		GameConsole.WriteLine();
 		GameConsole.WriteLine(
 			"USAGE: cd [directoryname]\n" +
 			"\n" +

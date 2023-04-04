@@ -15,5 +15,14 @@ public class NETChatContact : IComparable<NETChatContact>
 	[XmlElement("Chat")]
 	public Chat Chat;
 
+	[XmlAttribute("HasPendingChatRequest")]
+	public bool HasPendingChatRequest;
+
+	[XmlElement("PathToSequenceJS")]
+	public string PathToSequenceJS;
+
+	[XmlIgnore]
+	public string SequenceJSSource => File.ReadAllText(PathToSequenceJS);
+
 	public int CompareTo(NETChatContact other) => Username.CompareTo(other.Username);
 }

@@ -52,7 +52,7 @@ public static class Util
 		return ElapsedMs;
 	}
 
-	public static void WriteDynamic(this TextBox Con, string text, int delaymiliseconds)
+	public static void WriteDynamic(this ScrollableTextBox Con, string text, int delaymiliseconds)
 	{
 		foreach (char c in text)
 		{
@@ -61,7 +61,7 @@ public static class Util
 		}
 	}
 
-	public static void WriteDynamicColor(this TextBox Con, string text, int delaymiliseconds, ConsoleColor color)
+	public static void WriteDynamicColor(this ScrollableTextBox Con, string text, int delaymiliseconds, ConsoleColor color)
 	{
 		foreach (char c in text)
 		{
@@ -116,7 +116,7 @@ public static class Util
 	//		Console.CursorVisible = true;
 	//	}
 
-	public static void BeginCharacterAnimation(this TextBox Con, char[] Frames, int CycleCountLowerLimit, int CycleCountUpperLimit, int SleepIntervalMilliseconds, (int X, int Y) Position)
+	public static void BeginCharacterAnimation(this ScrollableTextBox Con, char[] Frames, int CycleCountLowerLimit, int CycleCountUpperLimit, int SleepIntervalMilliseconds, (int X, int Y) Position)
 	{
 		Random rand = new(DateTime.UtcNow.Second);
 	

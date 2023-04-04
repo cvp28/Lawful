@@ -4,7 +4,7 @@ namespace Lawful.GameLibrary.UI;
 
 public class LogLayer : Layer
 {
-	[Widget] public TextBox Log;
+	[Widget] public ScrollableTextBox Log;
 
 	public LogLayer()
 	{
@@ -13,9 +13,27 @@ public class LogLayer : Layer
 
 		Log.WriteLine("Lawful");
 		Log.WriteLine("Dev Build - Feb. 2023");
-		Log.NextLine();
+		Log.WriteLine();
 
 		AddWidgetsInternal();
+	}
+
+	[UpdateTask]
+	private void OnInput(State s)
+	{
+		if (!s.KeyPressed)
+			return;
+
+		switch (s.KeyInfo.Key)
+		{
+			case ConsoleKey.UpArrow:
+				Log.ScrollViewUp();
+				break;
+
+			case ConsoleKey.DownArrow:
+				Log.ScrollViewDown();
+				break;
+		}
 	}
 
 	public override void OnShow(App a, object[] Args) { }

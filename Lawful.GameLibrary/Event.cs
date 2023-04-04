@@ -25,7 +25,10 @@ public enum Trigger
 	SSHDisconnect,
 
 	CommandEntered,
-	CommandExecuted
+	CommandExecuted,
+
+	FriendRequestAccepted,
+	FriendRequestDenied
 }
 
 public class Event

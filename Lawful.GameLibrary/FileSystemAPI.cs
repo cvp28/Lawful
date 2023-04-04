@@ -34,6 +34,9 @@ public static class FSAPI
 	{
 		XmlNode Traverser;
 
+		if (Path.Length == 0)
+			return null;
+
 		if (Path[0] == '/')
 			Traverser = Session.Host.FileSystemRoot;
 		else

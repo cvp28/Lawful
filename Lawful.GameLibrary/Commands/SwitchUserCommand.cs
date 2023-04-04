@@ -12,7 +12,7 @@ public static class SwitchUserCommand
 	public static void Help()
 	{
 		GameConsole.WriteLine("User Switching Utility v1.0", ConsoleColor.Yellow, ConsoleColor.Black);
-		GameConsole.NextLine();
+		GameConsole.WriteLine();
 		GameConsole.WriteLine(
 			"USAGE: su [username] [password]\n" +
 			"\n" +

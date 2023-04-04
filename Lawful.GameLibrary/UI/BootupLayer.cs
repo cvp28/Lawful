@@ -4,13 +4,17 @@ namespace Lawful.GameLibrary.UI;
 
 public class BootupLayer : Layer
 {
-	[Widget] public TextBox BootupConsole;
+	[Widget] public ScrollableTextBox BootupConsole;
 
 	public ReadKeyBridge ReadKey;
 
 	public BootupLayer() : base()
 	{
-		BootupConsole = new();
+		BootupConsole = new(0, 0, Console.WindowWidth - 2, Console.WindowHeight - 2, 0)
+		{
+			ScrollbarVisible = false
+		};
+
 		ReadKey = new();
 
 		AddWidgetsInternal();

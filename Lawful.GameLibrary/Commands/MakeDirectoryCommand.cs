@@ -12,7 +12,7 @@ public static class MakeDirectoryCommand
 	public static void Help()
 	{
 		GameConsole.WriteLine("Directory Creation Utility v1.0", ConsoleColor.Yellow, ConsoleColor.Black);
-		GameConsole.NextLine();
+		GameConsole.WriteLine();
 		GameConsole.WriteLine(
 			"USAGE: md [directoryname]\n" +
 			"\n" +

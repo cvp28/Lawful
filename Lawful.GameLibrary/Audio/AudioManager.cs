@@ -53,25 +53,18 @@ public class AudioManager
 		return Freed;
 	}
 
-	public bool FreeAll()
+	public void FreeAll()
 	{
-		bool Successful = false;
-
 		foreach (var kvp in ActiveStreams)
 		{
-			Successful = Bass.BASS_StreamFree(kvp.Value);
-
-			if (Successful)
+			if (Bass.BASS_StreamFree(kvp.Value))
 				ActiveStreams.Remove(kvp.Key);
 			else
 				Log.WriteLine($"AudioManager :: BASS_StreamFree failed with '{Bass.BASS_ErrorGetCode()}'");
 		}
-
-		return Successful;
 	}
 
 	public bool Play(string ID, bool RestartCurrent)
-	
 	{
 		if (!ActiveStreams.ContainsKey(ID))
 			return false;

@@ -12,7 +12,7 @@ public static class ConcatenateCommand
 	public static void Help()
 	{
 		GameConsole.WriteLine("Concatenate Utility v1.0", ConsoleColor.Yellow, ConsoleColor.Black);
-		GameConsole.NextLine();
+		GameConsole.WriteLine();
 		GameConsole.WriteLine(
 			"USAGE: cat [filepath]\n" +
 			"\n" +

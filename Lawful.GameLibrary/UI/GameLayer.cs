@@ -1,5 +1,9 @@
 ﻿using Haven;
+using Jint.Runtime.Debugger;
 using Lawful.InputParser;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Xml;
 
 namespace Lawful.GameLibrary.UI;
 
@@ -12,7 +16,7 @@ public class GameLayer : Layer
 
 	[Widget] private Label ConsoleTabLabel, NETChatTabLabel;
 	[Widget] private Label Header;
-	[Widget] public TextBox GameConsole;
+	[Widget] public ScrollableTextBox GameConsole;
 	[Widget] public InputField Input;
 
 	public GameLayer() : base()
@@ -27,7 +31,13 @@ public class GameLayer : Layer
 			CursorBlinkIntervalMs = 500
 		};
 
-		Input = new(0, Console.WindowHeight - 1, "/ # ");
+		Input = new(0, Console.WindowHeight - 1, "/ # ")
+		{
+			HighlightingEnabled = true
+		};
+
+		Input.OnRetrieveSuggestions = OnRetrieveSuggestions;
+		Input.OnHighlight = OnHighlight;
 
 		PromptProvider = GetDefaultPrompt;
 
@@ -42,7 +52,7 @@ public class GameLayer : Layer
 	}
 
 	[UpdateTask]
-	private void AppSwitchTask(State s)
+	private void OnInput(State s)
 	{
 		if (!s.KeyPressed)
 			return;
@@ -64,10 +74,18 @@ public class GameLayer : Layer
 
 				App.Instance.SetLayer(0, "NETChat");
 				break;
+
+			case ConsoleKey.PageUp:
+				GameConsole.ScrollViewUp();
+				break;
+
+			case ConsoleKey.PageDown:
+				GameConsole.ScrollViewDown();
+				break;
 		}
 	}
 
-	private void OnInput(string UserInput)
+	private void OnConsoleInput(string UserInput)
 	{
 		InputQuery UserQuery = Parser.Parse(UserInput);
 
@@ -84,14 +102,94 @@ public class GameLayer : Layer
 			Log.WriteLine($"UIManager :: HandleUserInput task for '{UserInput}' finished");
 
 			EventManager.HandleEventsByTrigger(Trigger.CommandExecuted);
+
+			EventManager.JSE.SetValue("G_UserQuery", "");
 		}).Start();
+	}
+
+	private List<string> TempSuggestions = new();
+
+	private IEnumerable<string> OnRetrieveSuggestions(Token Selected, IEnumerable<Token> CurrentTokens)
+	{
+		TempSuggestions.Clear();
+
+		if (Selected.Content.Contains('/'))
+		{
+			bool Root = Selected.Content.StartsWith('/');
+
+			var Tokens = Selected.Content.Split('/');
+			var LastToken = Selected.Content.Split('/').Last();
+
+			StringBuilder sb = new();
+
+			for (int i = 0; i < Tokens.Length - 1; i++)
+			{
+				if (i == 0)
+					sb.Append($"{(Root ? '/' : "")}{Tokens[i]}");
+				else
+					sb.Append($"/{Tokens[i]}");
+			}
+
+			var Children = (FSAPI.Locate(Player.CurrentSession, sb.ToString()) as XmlNode).ChildNodes;
+
+			foreach (XmlNode n in Children)
+			{
+				if (n.Name == "Directory")
+				{
+					TempSuggestions.Add($"{sb}/{n.Attributes["Name"].Value}/");
+				}
+				else
+				{
+					TempSuggestions.Add($"{sb}/{n.Attributes["Name"].Value}");
+				}
+
+			}
+
+			TempSuggestions.Add($"{sb}/..");
+		}
+		else
+		{
+			foreach (XmlNode x in Player.CurrentSession.PathNode.ChildNodes)
+				TempSuggestions.Add(x.Attributes["Name"].Value);
+		}
+
+
+		return TempSuggestions.Where(m => Regex.IsMatch(m, $"^{Selected.Content.Replace(".", "\\.")}"));
+	}
+
+	private void OnHighlight(IEnumerable<Token> CurrentTokens)
+	{
+		if (!CurrentTokens.Any())
+			return;
+
+		foreach (Token t in CurrentTokens)
+		{
+			var Temp = FSAPI.Locate(Player.CurrentSession, t.Content);
+
+			if (Temp is null)
+				continue;
+
+			// If file is executable
+			if (Temp is XmlNode File && File.Attributes["Command"] is not null)
+				t.HighlightForeground = ConsoleColor.Green;
+			else
+				t.HighlightForeground = ConsoleColor.Yellow;
+		}
+
+		{
+			Token First = CurrentTokens.First();
+
+			if (FSAPI.LocateFile(Player.CurrentSession, $"/bin/{First.Content}") is XmlNode File)
+				if (File.Attributes["Command"] is not null)
+					First.HighlightForeground = ConsoleColor.Green;
+		}
 	}
 
 	public void ResetInput()
 	{
 		Input.Clear();
-		Input.OnInput = OnInput;
-
+		Input.OnInput = OnConsoleInput;
+		
 		PromptProvider = GetDefaultPrompt;
 	}
 

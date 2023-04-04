@@ -5,7 +5,7 @@ namespace Lawful.GameLibrary;
 public class Chat
 {
 	[XmlElement("Message")]
-	public List<ChatMessage> History;
+	public List<ChatMessage> History = new();
 }
 
 public class ChatMessage
@@ -15,6 +15,4 @@ public class ChatMessage
 
 	[XmlText]
 	public string Message = string.Empty;
-
-	public ChatMessage() { }
 }

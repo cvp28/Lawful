@@ -9,7 +9,7 @@ public class Config
 	public bool ShowFPS;
 
 	[XmlElement("Renderer")]
-	public Renderer SelectedRenderer;
+	public RendererType SelectedRenderer;
 
 	[XmlElement("EnableTypewriter")]
 	public bool EnableTypewriter;
@@ -20,13 +20,13 @@ public class Config
 	public Config()
 	{
 		ShowFPS = true;
-		SelectedRenderer = OperatingSystem.IsWindows() ? Renderer.WindowsNative : Renderer.CrossPlatform;
+		SelectedRenderer = OperatingSystem.IsWindows() ? RendererType.WindowsNative : RendererType.CrossPlatform;
 		EnableTypewriter = true;
 		TypewriterVolume = 0.2f;
 	}
 }
 
-public enum Renderer
+public enum RendererType
 {
 	CrossPlatform,
 	WindowsNative

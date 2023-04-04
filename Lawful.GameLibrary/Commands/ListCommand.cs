@@ -12,7 +12,7 @@ public static class ListCommand
 	public static void Help()
 	{
 		GameConsole.WriteLine("File System List Utility v1.0", ConsoleColor.Yellow, ConsoleColor.Black);
-		GameConsole.NextLine();
+		GameConsole.WriteLine();
 		GameConsole.WriteLine(
 			"USAGE: ls [objectname]\n" +
 			"\n" +

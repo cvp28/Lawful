@@ -1,6 +1,5 @@
 ﻿using System.Xml;
 using System.Xml.Serialization;
-using System.Diagnostics.CodeAnalysis;
 
 using Haven;
 using Un4seen.Bass;
@@ -19,7 +18,7 @@ public static class GameAPI
 	private static List<string> NormalTypewriterStreams;
 	private static Random Rand;
 	public static bool TypewriterInitialized { get; private set; } = false;
-	public static Renderer CurrentRenderer { get; set; }
+	public static RendererType CurrentRenderer { get; set; }
 
 	public static Delegate EmptyDelegate = delegate () { };
 
@@ -27,7 +26,7 @@ public static class GameAPI
 	public static Config BaseConfig = new()
 	{
 		ShowFPS = false,
-		SelectedRenderer = OperatingSystem.IsWindows() ? Renderer.WindowsNative : Renderer.CrossPlatform,
+		SelectedRenderer = OperatingSystem.IsWindows() ? RendererType.WindowsNative : RendererType.CrossPlatform,
 		EnableTypewriter = true,
 		TypewriterVolume = 0.2f
 	};
@@ -121,6 +120,9 @@ public static class GameAPI
 	public static void InitSFX()
 	{
 		MainAudioOut.CreateStream("FriendRequestNotify", @"Content\Audio\SFX\FriendRequestNotify.wav".ToPlatformPath());
+		MainAudioOut.CreateStream("FriendRequestAccept", @"Content\Audio\SFX\FriendRequestAccept.wav".ToPlatformPath());
+		MainAudioOut.CreateStream("FriendRequestDeny", @"Content\Audio\SFX\FriendRequestDeny.wav".ToPlatformPath());
+
 		MainAudioOut.CreateStream("UserOnlineNotify", @"Content\Audio\SFX\UserOnlineNotify.wav".ToPlatformPath());
 		MainAudioOut.CreateStream("UserOfflineNotify", @"Content\Audio\SFX\UserOfflineNotify.wav".ToPlatformPath());
 	}
@@ -225,6 +227,9 @@ public static class GameAPI
 	{
 		if (SkipBootupSequence)
 		{
+			EventManager.HandleEventsByTrigger(Trigger.BootupSequenceStarted);
+			EventManager.HandleEventsByTrigger(Trigger.BootupSequenceFinished);
+
 			App.GetLayer<NotifyLayer>().StartNotifyThread();
 
 			App.SetLayer(0, "Game", true);
@@ -244,7 +249,7 @@ public static class GameAPI
 
 			BootupConsole.WriteLine("V Systems Company", ConsoleColor.Yellow, ConsoleColor.Black);
 			BootupConsole.WriteLine("(C) 2018", ConsoleColor.Yellow, ConsoleColor.Black);
-			BootupConsole.NextLine();
+			BootupConsole.WriteLine();
 
 			Thread.Sleep(750);
 
@@ -255,7 +260,7 @@ public static class GameAPI
 				Thread.Sleep(50);
 			}
 			BootupConsole.WriteLine(" 8192 MB OK", ConsoleColor.Green, ConsoleColor.Black);
-			BootupConsole.NextLine();
+			BootupConsole.WriteLine();
 
 			Thread.Sleep(500);
 
@@ -288,7 +293,7 @@ public static class GameAPI
 			BootupConsole.WriteLine("Reported Capacity : 2 TB (2,199,023,255,552 bytes)", ConsoleColor.Yellow, ConsoleColor.Black);
 
 			Thread.Sleep(500);
-			BootupConsole.NextLine();
+			BootupConsole.WriteLine();
 
 
 			BootupConsole.WriteLine("    Found Device!", ConsoleColor.Green, ConsoleColor.Black);
@@ -315,7 +320,7 @@ public static class GameAPI
 
 			Thread.Sleep(250);
 			BootupConsole.WriteLine("Done!");
-			BootupConsole.NextLine();
+			BootupConsole.WriteLine();
 
 			Thread.Sleep(500);
 
@@ -327,7 +332,7 @@ public static class GameAPI
 
 			Thread.Sleep(1500);
 
-			BootupConsole.NextLine();
+			BootupConsole.WriteLine();
 
 			Thread.Sleep(500);
 
@@ -336,7 +341,7 @@ public static class GameAPI
 
 			BootupConsole.WriteLine("Kennedy Computers Microprocessor Kernel");
 			BootupConsole.WriteLine("(C) 2018");
-			BootupConsole.NextLine();
+			BootupConsole.WriteLine();
 
 			Thread.Sleep(750);
 
@@ -374,7 +379,7 @@ public static class GameAPI
 				Thread.Sleep(50);
 			}
 			BootupConsole.WriteLine(" loaded", ConsoleColor.Green, ConsoleColor.Black);
-			BootupConsole.NextLine();
+			BootupConsole.WriteLine();
 
 			Thread.Sleep(250);
 
@@ -388,22 +393,22 @@ public static class GameAPI
 
 			Thread.Sleep(750);
 
-			BootupConsole.NextLine();
-			BootupConsole.NextLine();
+			BootupConsole.WriteLine();
+			BootupConsole.WriteLine();
 
 			BootupConsole.Write("Initiating user session... ");
 			Thread.Sleep(500);
 			BootupConsole.WriteLine("done", ConsoleColor.Green, ConsoleColor.Black);
-			BootupConsole.NextLine();
+			BootupConsole.WriteLine();
 
 			Thread.Sleep(250);
 
-			BootupConsole.NextLine();
+			BootupConsole.WriteLine();
 
 			Thread.Sleep(500);
 
 			BootupConsole.WriteLine("Welcome.");
-			BootupConsole.NextLine();
+			BootupConsole.WriteLine();
 
 			Thread.Sleep(1500);
 
@@ -420,7 +425,7 @@ public static class GameAPI
 			BootupConsole.WriteLine("done.");
 			BootupConsole.WriteLine($"kcon handle: 0x{HexString}");
 
-			BootupConsole.NextLine();
+			BootupConsole.WriteLine();
 
 			Thread.Sleep(500);
 
@@ -529,7 +534,7 @@ public static class GameAPI
 				Player.CurrentSession.PathNode = Player.CurrentSession.Host.GetNodeFromPath("/home/Konym");
 
 				GameConsole.Write("done.");
-				GameConsole.NextLine();
+				GameConsole.WriteLine();
 				return;
 		}
 
