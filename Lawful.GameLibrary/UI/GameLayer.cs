@@ -117,45 +117,49 @@ public class GameLayer : Layer
 		{
 			bool Root = Selected.Content.StartsWith('/');
 
-			var Tokens = Selected.Content.Split('/');
-			var LastToken = Selected.Content.Split('/').Last();
+			var Tokens = Selected.Content.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
 			StringBuilder sb = new();
 
-			for (int i = 0; i < Tokens.Length - 1; i++)
+			XmlNode Dir;
+
+			if (Root && Tokens.Length == 1)
 			{
-				if (i == 0)
-					sb.Append($"{(Root ? '/' : "")}{Tokens[i]}");
-				else
-					sb.Append($"/{Tokens[i]}");
+				Dir = Player.CurrentSession.Host.FileSystemRoot;
+			}
+			else
+			{
+				for (int i = 0; i < Tokens.Length - 1; i++)
+				{
+					if (i == 0)
+						sb.Append($"{(Root ? '/' : "")}{Tokens[i]}");
+					else
+						sb.Append($"/{Tokens[i]}");
+				}
+
+				Dir = FSAPI.LocateDirectory(Player.CurrentSession, sb.ToString());
 			}
 
-			var Temp = FSAPI.Locate(Player.CurrentSession, sb.ToString());
-
-			if (Temp is null)
+			if (Dir is null)
 				return Array.Empty<string>();
 
-			var Children = Temp.ChildNodes;
+			var Children = Dir.ChildNodes;
 
 			foreach (XmlNode n in Children)
-			{
 				if (n.Name == "Directory")
-				{
 					TempSuggestions.Add($"{sb}/{n.Attributes["Name"].Value}/");
-				}
 				else
-				{
 					TempSuggestions.Add($"{sb}/{n.Attributes["Name"].Value}");
-				}
-
-			}
 
 			TempSuggestions.Add($"{sb}/..");
 		}
 		else
 		{
 			foreach (XmlNode x in Player.CurrentSession.PathNode.ChildNodes)
-				TempSuggestions.Add(x.Attributes["Name"].Value);
+				if (x.Name == "Directory")
+					TempSuggestions.Add($"{x.Attributes["Name"].Value}/");
+				else
+					TempSuggestions.Add($"{x.Attributes["Name"].Value}");
 		}
 
 		var FinalSuggestions = TempSuggestions.Where(delegate (string m)

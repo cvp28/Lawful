@@ -1,4 +1,4 @@
-﻿#define DEV
+﻿//#define DEV
 
 using Lawful.GameLibrary;
 using Lawful.GameLibrary.UI;
