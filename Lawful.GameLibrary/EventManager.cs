@@ -135,9 +135,29 @@ public static class EventManager
 			MissionAPI.LoadMission(ID);
 		});
 
-		JSE.SetValue("AddChatSequence", delegate (string Path)
+		JSE.SetValue("AddChatSequence", delegate (string Username, string PathToJS)
 		{
+			// Validation
+			NETChatContact TryContact = Player.NETChatAccount.Contacts.FirstOrDefault(c => c.Username == Username);
 
+			if (TryContact is null)
+			{
+				Log.WriteLine($"EventManager :: A script called 'AddChatSequence' but username '{Username}' was not found");
+				return;
+			}
+
+			if (!File.Exists(@$"{CurrentStoryRoot}\{PathToJS}"))
+			{
+				Log.WriteLine($"EventManager :: A script called 'AddChatSequence' but path '{PathToJS}' was not found");
+				return;
+			}
+
+			// Temporarily use FriendRequestNotify SFX for new message notification because I cannot be bothered to make a new sound effect right now
+			App.GetLayer<NotifyLayer>().PushNotification($"New message from {TryContact.Username}!", "FriendRequestNotify", delegate ()
+			{
+				TryContact.HasPendingChatRequest = true;
+				TryContact.PathToSequenceJS = PathToJS;
+			});
 		});
 
 		JSE.SetValue("SetUserOnline", delegate (string Username)
@@ -146,7 +166,7 @@ public static class EventManager
 
 			if (TryContact is null)
 			{
-				Log.WriteLine($"EventManager :: A script called 'SetUserOnline' but Username '{Username}' was not found");
+				Log.WriteLine($"EventManager :: A script called 'SetUserOnline' but username '{Username}' was not found");
 				return;
 			}
 
@@ -165,7 +185,7 @@ public static class EventManager
 
 			if (TryContact is null)
 			{
-				Log.WriteLine($"EventManager :: A script called 'SetUserOffline' but Username '{Username}' was not found");
+				Log.WriteLine($"EventManager :: A script called 'SetUserOffline' but username '{Username}' was not found");
 				return;
 			}
 

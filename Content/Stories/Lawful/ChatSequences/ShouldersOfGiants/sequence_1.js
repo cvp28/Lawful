@@ -2,17 +2,17 @@ AddMessage("Jason", "Hey, what's up?");
 
 DelayMs(2000);
 
-AddColoredMessage("[SERVER]", "User 'Jason' poked you.", ConsoleColor.Yellow)
+AddMessage("SERVER", "User 'Jason' poked you.")	
 
 DelayMs(1000);
 
 AddMessage("Jason", "Come onnnn, I know you got that notification just now!");
 
-DefineChoice1("Sorry, was in the restroom");
-DefineChoice1Flag("sog_1_proper");
+DefineChoice(1, "Sorry, was in the restroom");
+DefineChoiceFlag(1, "sog_1_proper");
 
-DefineChoice2("ALRIGHT alright im here. whats up?");
-DefineChoice2Flag("sog_1_jeez");
+DefineChoice(2, "ALRIGHT alright im here. whats up?");
+DefineChoiceFlag(2, "sog_1_jeez");
 
 // Blocking call. Waits for user to actually pick a response choice.
 AwaitResponse();

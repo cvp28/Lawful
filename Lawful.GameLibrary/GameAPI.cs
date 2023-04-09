@@ -2,7 +2,9 @@
 using System.Xml.Serialization;
 
 using Haven;
+
 using Un4seen.Bass;
+using Jint;
 
 using Lawful.InputParser;
 
@@ -105,7 +107,7 @@ public static class GameAPI
 		return ValidSaves.ToArray();
 	}
 
-	public static void InitializeBASS()
+	public static void InitBASS()
 	{
 		// Initialize BASS
 		bool BassInit = Bass.BASS_Init(-1, 44100, BASSInit.BASS_DEVICE_DEFAULT, IntPtr.Zero);
@@ -125,6 +127,97 @@ public static class GameAPI
 
 		MainAudioOut.CreateStream("UserOnlineNotify", @"Content\Audio\SFX\UserOnlineNotify.wav".ToPlatformPath());
 		MainAudioOut.CreateStream("UserOfflineNotify", @"Content\Audio\SFX\UserOfflineNotify.wav".ToPlatformPath());
+	}
+
+	public static void InitChatSequenceInterpreter()
+	{
+		ChatSequenceInterpreter.SetValue("AddMessage", delegate (string Username, string Message)
+		{
+			NETChatContact TryContact = Player.NETChatAccount.Contacts.FirstOrDefault(c => c.Username == Username);
+
+			if (TryContact is null)
+			{
+				Log.WriteLine($"GameAPI :: A script called 'AddMessage' but username '{Username}' was not found");
+				return;
+			}
+
+			// Add message to chat history
+			TryContact.Chat.History.Add(new ChatMessage() { Username = Username, Message = Message });
+
+			// Write chat message to chat view
+			if (Username.ToUpper() == "SERVER")
+				App.GetLayer<NETChatLayer>().WriteServerMessage(Message);
+			else
+				App.GetLayer<NETChatLayer>().WriteNormalMessage(TryContact.Username, Message);
+		});
+
+		ChatSequenceInterpreter.SetValue("DefineChoice", delegate (int ChoiceNumber, string Choice)
+		{
+			if (ChoiceNumber <= 0 || ChoiceNumber >= 4)
+			{
+				Log.WriteLine($"GameAPI :: A script called 'DefineChoice' with invalid choice number '{ChoiceNumber}'");
+				return;
+			}
+
+			var Layer = App.GetLayer<NETChatLayer>();
+
+			switch (ChoiceNumber)
+			{
+				case 1:
+					Layer.Choice1 = Choice;
+					break;
+
+				case 2:
+					Layer.Choice2 = Choice;
+					break;
+
+				case 3:
+					Layer.Choice3 = Choice;
+					break;
+			}
+		});
+
+		ChatSequenceInterpreter.SetValue("DefineChoiceFlag", delegate (int ChoiceNumber, string Flag)
+		{
+			if (ChoiceNumber <= 0 || ChoiceNumber >= 4)
+			{
+				Log.WriteLine($"GameAPI :: A script called 'DefineChoiceFlag' with invalid choice number '{ChoiceNumber}'");
+				return;
+			}
+
+			var Layer = App.GetLayer<NETChatLayer>();
+
+			switch (ChoiceNumber)
+			{
+				case 1:
+					Layer.Choice1Flag = Flag;
+					break;
+
+				case 2:
+					Layer.Choice2Flag = Flag;
+					break;
+
+				case 3:
+					Layer.Choice3Flag = Flag;
+					break;
+			}
+		});
+
+		ChatSequenceInterpreter.SetValue("AwaitResponse", delegate ()
+		{
+
+		});
+
+		ChatSequenceInterpreter.SetValue("DelayMs", delegate (int Milliseconds)
+		{
+			if (Milliseconds < 0)
+			{
+				Log.WriteLine("GameAPI :: A script called 'DelayMs' with a time value less than 0");
+				return;
+			}
+
+			Thread.Sleep(Milliseconds);
+		});
 	}
 
 	public static void InitTypewriter()
@@ -439,6 +532,13 @@ public static class GameAPI
 			App.SetLayer(0, "Game", true);
 			App.SetLayer(1, "Notify");
 		});
+
+	}
+
+	private static Engine ChatSequenceInterpreter = new();
+
+	public static void ExecuteChatSequence(string ScriptSource)
+	{
 
 	}
 

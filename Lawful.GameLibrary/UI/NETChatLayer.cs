@@ -1,5 +1,4 @@
 ﻿using Haven;
-using System.Runtime.InteropServices.JavaScript;
 
 namespace Lawful.GameLibrary.UI;
 
@@ -10,6 +9,8 @@ public class NETChatLayer : Layer
 	[Widget] private Label ConsoleTabLabel, NETChatTabLabel;
 	[Widget] private Label Line1, Line2, Line3, Line4, Line5, ChtFr;
 
+	[Widget] public Label Option1, Option2, Option3;
+
 	[Widget] public ScrollableTextBox ChatView;
 
 	[Widget] private Label FriendsHeader, RequestsHeader;
@@ -17,6 +18,15 @@ public class NETChatLayer : Layer
 	[Widget] private Label AcceptLabel;
 
 	private string CurrentFriendRequest;
+	private bool CurrentlyDoingChatSequence = false;
+
+	public string Choice1;
+	public string Choice2;
+	public string Choice3;
+
+	public string Choice1Flag;
+	public string Choice2Flag;
+	public string Choice3Flag;
 
 	public NETChatLayer() : base()
 	{
@@ -29,6 +39,10 @@ public class NETChatLayer : Layer
 		Line4 = new(1, 4, @" / /|  // /___   / /  / /___ / / / // /_/ // /_  ", ConsoleColor.Red, ConsoleColor.Black);
 		Line5 = new(1, 5, @"/_/ |_//_____/  /_/   \____//_/ /_/ \__/\_\\__/  ", ConsoleColor.Red, ConsoleColor.Black);
 		ChtFr = new(1, 6, @"\ Chat with friends", ConsoleColor.Yellow, ConsoleColor.Black);
+
+		Option1 = new(0, 0) { Visible = false };
+		Option2 = new(0, 0) { Visible = false };
+		Option3 = new(0, 0) { Visible = false };
 
 		FriendsHeader = new(1, 9, "Your Friends");
 		RequestsHeader = new(1, 9, "Friend Requests")
@@ -162,6 +176,41 @@ public class NETChatLayer : Layer
 
 	private static readonly object FriendsListLock = new();
 
+	public void WriteServerMessage(string Message)
+	{
+		ChatView.Write('[');
+		ChatView.Write("SERVER", ConsoleColor.DarkGreen);
+		ChatView.Write("] ");
+		ChatView.Write(Message);
+	}
+
+	public void WriteNormalMessage(string Username, string Message)
+	{
+		ChatView.Write('[');
+		ChatView.Write(Username, ConsoleColor.Yellow);
+		ChatView.Write("] ");
+		ChatView.Write(Message);
+	}
+
+	private void FillChatMessages(NETChatContact Contact)
+	{
+		ChatView.WriteLine($"{Contact.Username}'s Chat\n", ConsoleColor.Yellow);
+
+		foreach (var m in Contact.Chat.History)
+		{
+			ChatView.Write('[');
+
+			if (Contact.Username == "SERVER")
+				ChatView.Write(Contact.Username, ConsoleColor.DarkGreen);
+			else
+				ChatView.Write(Contact.Username, ConsoleColor.Yellow);
+
+			ChatView.Write("] ");
+
+			ChatView.WriteLine(m.Message);
+		}
+	}
+
 	public void UpdateLists()
 	{
 		lock (FriendsListLock)
@@ -185,26 +234,17 @@ public class NETChatLayer : Layer
 
 					if (f.HasPendingChatRequest)
 					{
+						FillChatMessages(f);
+						ChatView.Visible = true;
 
+						string ChatSequenceSource = File.ReadAllText(@$"{CurrentStoryRoot}\{f.PathToSequenceJS}");
+						GameAPI.ExecuteChatSequence(ChatSequenceSource); // Starts a new thread internally
 					}
-
-					ChatView.WriteLine($"{f.Username}'s Chat\n", ConsoleColor.Yellow);
-
-					foreach (var m in f.Chat.History)
+					else
 					{
-						ChatView.Write('[');
-
-						if (f.Username == "SERVER")
-							ChatView.Write(f.Username, ConsoleColor.DarkGreen);
-						else
-							ChatView.Write(f.Username, ConsoleColor.Yellow);
-
-						ChatView.Write("] ");
-
-						ChatView.WriteLine(m.Message);
+						FillChatMessages(f);
+						ChatView.Visible = true;
 					}
-
-					ChatView.Visible = true;
 				}, ConsoleColor.DarkGreen);
 
 			foreach (var f in OfflineFriends)

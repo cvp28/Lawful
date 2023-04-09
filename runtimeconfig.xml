@@ -2,5 +2,5 @@
   <ShowFPS>true</ShowFPS>
   <Renderer>WindowsNative</Renderer>
   <EnableTypewriter>true</EnableTypewriter>
-  <TypewriterVolume>0.08</TypewriterVolume>
+  <TypewriterVolume>0.03</TypewriterVolume>
 </Config>

@@ -17,6 +17,8 @@ int ProcessRCElapsed = 0;
 int InitializeEngineElapsed = 0;
 int InitializeUIElapsed = 0;
 int InitializeBASSElapsed = 0;
+int InitializeEventManagerElapsed = 0;
+int InitializeChatSequenceInterpreterElapsed = 0;
 
 GameSession.SkipBootupSequence = true;
 
@@ -74,7 +76,19 @@ Console.WriteLine("done.");
 #region BASS Init
 // Initialize BASS
 Console.Write("Initializing BASS... ");
-InitializeBASSElapsed = Util.ExecTimed(GameAPI.InitializeBASS);
+InitializeBASSElapsed = Util.ExecTimed(GameAPI.InitBASS);
+Console.WriteLine("done.");
+#endregion
+
+#region EventManager Init
+Console.Write("Initializing EventManager... ");
+InitializeEventManagerElapsed = Util.ExecTimed(EventManager.Initialize);
+Console.WriteLine("done.");
+#endregion
+
+#region ChatSequenceInterpreter Init
+Console.Write("Initializing ChatSequenceInterpreter... ");
+InitializeChatSequenceInterpreterElapsed = Util.ExecTimed(GameAPI.InitChatSequenceInterpreter);
 Console.WriteLine("done.");
 #endregion
 
@@ -89,7 +103,9 @@ GameAPI.InitSFX();
 GameSession.Log.WriteLine($"Lawful :: Process runtimeconfig.xml took {ProcessRCElapsed} ms");
 GameSession.Log.WriteLine($"Lawful :: Initialize Haven took {InitializeEngineElapsed} ms");
 GameSession.Log.WriteLine($"Lawful :: Initialize UI took {InitializeUIElapsed} ms");
-GameSession.Log.WriteLine($"Lawful :: Initialize BASS took {InitializeBASSElapsed} ms 👍");
+GameSession.Log.WriteLine($"Lawful :: Initialize BASS took {InitializeBASSElapsed} ms");
+GameSession.Log.WriteLine($"Lawful :: Initialize EventManager took {InitializeEventManagerElapsed} ms");
+GameSession.Log.WriteLine($"Lawful :: Initialize ChatSequenceInterpreter took {InitializeChatSequenceInterpreterElapsed} ms");
 
 GameSession.Log.WriteLine("Lawful :: Running Haven now...");
 

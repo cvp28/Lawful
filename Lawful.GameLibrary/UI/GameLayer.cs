@@ -130,7 +130,12 @@ public class GameLayer : Layer
 					sb.Append($"/{Tokens[i]}");
 			}
 
-			var Children = (FSAPI.Locate(Player.CurrentSession, sb.ToString()) as XmlNode).ChildNodes;
+			var Temp = FSAPI.Locate(Player.CurrentSession, sb.ToString());
+
+			if (Temp is null)
+				return Array.Empty<string>();
+
+			var Children = Temp.ChildNodes;
 
 			foreach (XmlNode n in Children)
 			{
@@ -153,8 +158,26 @@ public class GameLayer : Layer
 				TempSuggestions.Add(x.Attributes["Name"].Value);
 		}
 
+		var FinalSuggestions = TempSuggestions.Where(delegate (string m)
+		{
+			bool IsMatch = false;
 
-		return TempSuggestions.Where(m => Regex.IsMatch(m, $"^{Selected.Content.Replace(".", "\\.")}"));
+			try
+			{
+				IsMatch = Regex.IsMatch(m, $"^{Selected.Content.Replace(".", "\\.")}");
+			}
+			catch (Exception)
+			{
+				// log error
+				Log.WriteLine($"GameLayer :: Regex parsing for '{Selected.Content}' with {CurrentTokens.Count()} total tokens failed", ConsoleColor.Red);
+				Log.WriteLine("             No autocomplete suggestions will be returned");
+				return false;
+			}
+
+			return IsMatch;
+		});
+
+		return FinalSuggestions;
 	}
 
 	private void OnHighlight(IEnumerable<Token> CurrentTokens)
